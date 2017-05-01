@@ -70,15 +70,9 @@ class AvatarRestEndpoint extends Controller{
         val avatarId = AvatarId(updateAttribute.avatarId)
         val attributeToUpdate = parseAttribute(updateAttribute.attributeName, updateAttribute.newValue)
 
-        if(!avatarRepository.getAvatar(avatarId).isDefined)
-        {
-          NotFound("Avatar with id: " + avatarId + " not found")
+        if(avatarRepository.getAvatar(avatarId).isDefined && attributeToUpdate.isDefined){
+          avatarRepository.updateAttribute(avatarId, attributeToUpdate.get)
         }
-        if(!attributeToUpdate.isDefined)
-        {
-          BadRequest("Cant parse Attribute: "+ updateAttribute.attributeName)
-        }
-        avatarRepository.updateAttribute(avatarId, attributeToUpdate.get)
         Ok
       }
     )
