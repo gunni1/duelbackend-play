@@ -1,7 +1,8 @@
 package controllers
 
 import backend.avatar._
-import controllers.model.CreateAvatarModel
+import backend.persistence.{AvatarId, AvatarModel, AvatarRepository, MemoryAvatarRepository}
+import controllers.model.{CreateAvatarModel, UpdateAttribute}
 import play.api.Play
 import play.api.libs.json._
 import play.api.mvc._
@@ -22,18 +23,30 @@ class AvatarRestEndpoint extends Controller{
   implicit val createAvatarReads: Reads[CreateAvatarModel] =
     (JsPath \ "name").read[String].map(CreateAvatarModel(_))
 
-  def getAvatars = Action { implicit request =>
+  implicit val updateAttributeReads: Reads[UpdateAttribute] = (
+    (JsPath \ "avatarId").read[String] and (JsPath \ "attributeName").read[String] and
+      (JsPath \ "newValue").read[Int])(UpdateAttribute.apply _)
 
+  /**
+    * Liefert eine Liste mit allen Avataren und ihren Attributwerten (Testzwecke)
+    */
+  def getAvatars = Action { implicit request =>
     val avatarsJson = Json.toJson(avatarRepository.listAvatars)
     Ok(avatarsJson)
   }
 
+  /**
+    * Liefert einen Avatar zu einer bestimmten AvatarId.
+    */
   def getAvatar(avatarId: String) = Action { implicit request =>
     val maybeAvatar = avatarRepository.getAvatar(AvatarId(avatarId))
 
     maybeAvatar.map { avatar => Ok(Json.toJson(new AvatarModel(AvatarId(avatarId), avatar))) }.getOrElse(NotFound)
   }
 
+  /**
+    * Empfängt ein Json mit einem Namen und erzeugt unter diesem Namen einen neuen Avatar.
+    */
   def createAvatar = Action(BodyParsers.parse.json) { request =>
     val parseResult = request.body.validate[CreateAvatarModel]
     parseResult.fold(
@@ -45,5 +58,38 @@ class AvatarRestEndpoint extends Controller{
         Ok(Json.obj("status" -> "OK", "message" -> ("Avatar '"+avatar.name + "' saved with id: " + avatarId) ))
       }
     )
+  }
+
+  def updateAttribute= Action(BodyParsers.parse.json) {request =>
+    val parseResult = request.body.validate[UpdateAttribute]
+    parseResult.fold(
+      errors => {
+        BadRequest(Json.obj("status" -> "OK", "message" -> JsError.toJson(errors)))
+      },
+      updateAttribute => {
+        val avatarId = AvatarId(updateAttribute.avatarId)
+        val attributeToUpdate = parseAttribute(updateAttribute.attributeName, updateAttribute.newValue)
+
+        if(!avatarRepository.getAvatar(avatarId).isDefined)
+        {
+          NotFound("Avatar with id: " + avatarId + " not found")
+        }
+        if(!attributeToUpdate.isDefined)
+        {
+          BadRequest("Cant parse Attribute: "+ updateAttribute.attributeName)
+        }
+        avatarRepository.updateAttribute(avatarId, attributeToUpdate.get)
+        Ok
+      }
+    )
+  }
+
+  private def parseAttribute(attributeString: String, value: Int): Option[Attribute] = attributeString match {
+    case "strength" => Some(Strength(value))
+    case "agility" => Some(Agility(value))
+    case "endurance" => Some(Endurance(value))
+    case "dexterity" => Some(Dexterity(value))
+    case "perception" => Some(Perception(value))
+    case _ => None
   }
 }

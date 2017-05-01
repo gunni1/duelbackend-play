@@ -1,4 +1,6 @@
-package backend.avatar
+package backend.persistence
+
+import backend.avatar.Avatar
 
 /**
   * Repräsentiert einen Avatar aus Sicht einer externen Komponente.

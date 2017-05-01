@@ -1,4 +1,7 @@
-package backend.avatar
+package backend.persistence
+
+import backend.avatar._
+import play.api.libs.openid.Errors.AUTH_CANCEL
 
 import scala.collection._
 import scala.collection.concurrent.TrieMap
@@ -30,5 +33,19 @@ class MemoryAvatarRepository extends AvatarRepository{
     * Liefert einen Avatar anhand seiner AvatarId.
     */
   override def getAvatar(avatarId: AvatarId): Option[Avatar] =  avatars.get(avatarId)
-  createAvatar("Hans")
+
+  /**
+    * Ändert einen Attributwert eines Avatars.
+    */
+  override def updateAttribute(avatarId: AvatarId, attributeToUpdate: Attribute): Unit = {
+    //Annahme: Avatar ist bereits geprüft und vorhanden
+    val avatarToUpdate = getAvatar(avatarId).get
+    attributeToUpdate match {
+      case Strength(v) => avatarToUpdate.strength = v
+      case Agility(v) => avatarToUpdate.agility = v
+      case Endurance(v) => avatarToUpdate.endurance = v
+      case Dexterity(v) => avatarToUpdate.dexterity = v
+      case Perception(v) => avatarToUpdate.perception = v
+    }
+  }
 }

@@ -12,3 +12,4 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 GET     /avatars                    controllers.AvatarRestEndpoint.getAvatars
 GET     /avatar/:avatarId           controllers.AvatarRestEndpoint.getAvatar(avatarId: String)
 POST    /avatar/create              controllers.AvatarRestEndpoint.createAvatar
+POST    /avatar/updateAttribute     controllers.AvatarRestEndpoint.updateAttribute

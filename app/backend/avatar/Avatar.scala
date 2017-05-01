@@ -26,8 +26,8 @@ class Avatar(val name: String) {
   var dexterity: Int = 1
 
   /**
-    * Erhöht die Wahrscheinlichkeit einen gegnerischen Angriff rechtzeitig kommen zu sehen und
-    * zu Blocken oder zu kontern.
+    * Erhöht die Wahrscheinlichkeit einen gegnerischen Angriff rechtzeitig zu erkennen und
+    * zu blocken oder zu kontern.
     */
   var perception: Int = 1
 }
