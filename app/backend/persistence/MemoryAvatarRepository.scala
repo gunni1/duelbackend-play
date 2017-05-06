@@ -9,7 +9,7 @@ import scala.collection.concurrent.TrieMap
   * Eine Implementierung des AvatarRepository be ider die Daten im Speicher
   * gehalten werden.
   */
-class MemoryAvatarRepository extends AvatarRepository{
+object MemoryAvatarRepository extends AvatarRepository{
   private val idGenerator = new AvatarIdGenerator
   private val avatars: concurrent.TrieMap[AvatarId, Avatar] = new TrieMap[AvatarId, Avatar]()
 
@@ -48,4 +48,10 @@ class MemoryAvatarRepository extends AvatarRepository{
       case Perception(v) => avatarToUpdate.perception = v
     }
   }
+
+
+  //Einige Avatare sind bereis vorhanden:
+  createAvatar("Hans")
+  createAvatar("Jochen")
+  createAvatar("Peter")
 }

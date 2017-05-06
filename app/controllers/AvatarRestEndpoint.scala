@@ -12,7 +12,7 @@ import play.api.libs.functional.syntax._
   * Bedient Rest-Anfragen zu Avataren.
   */
 class AvatarRestEndpoint extends Controller{
-  val avatarRepository: AvatarRepository = new MemoryAvatarRepository
+  val avatarRepository: AvatarRepository = MemoryAvatarRepository
 
   implicit val createAvatarWrite: Writes[AvatarModel] = (
     (JsPath \ "avatarId").write[String] and (JsPath \ "name").write[String] and
