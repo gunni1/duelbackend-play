@@ -2,7 +2,7 @@ package controllers
 
 import backend.avatar._
 import backend.persistence.{AvatarId, AvatarModel, AvatarRepository, MemoryAvatarRepository}
-import controllers.model.{CreateAvatarModel, UpdateAttribute}
+import controllers.dto.{CreateAvatarDto, UpdateAttributeDto}
 import play.api.Play
 import play.api.libs.json._
 import play.api.mvc._
@@ -20,12 +20,12 @@ class AvatarRestEndpoint extends Controller{
       (JsPath \ "endurance").write[Int] and (JsPath \ "dexterity").write[Int] and
       (JsPath \ "perception").write[Int] )(unlift(AvatarModel.unapply))
 
-  implicit val createAvatarReads: Reads[CreateAvatarModel] =
-    (JsPath \ "name").read[String].map(CreateAvatarModel(_))
+  implicit val createAvatarReads: Reads[CreateAvatarDto] =
+    (JsPath \ "name").read[String].map(CreateAvatarDto(_))
 
-  implicit val updateAttributeReads: Reads[UpdateAttribute] = (
+  implicit val updateAttributeReads: Reads[UpdateAttributeDto] = (
     (JsPath \ "avatarId").read[String] and (JsPath \ "attributeName").read[String] and
-      (JsPath \ "newValue").read[Int])(UpdateAttribute.apply _)
+      (JsPath \ "newValue").read[Int])(UpdateAttributeDto.apply _)
 
   /**
     * Liefert eine Liste mit allen Avataren und ihren Attributwerten (Testzwecke)
@@ -48,7 +48,7 @@ class AvatarRestEndpoint extends Controller{
     * Empfängt ein Json mit einem Namen und erzeugt unter diesem Namen einen neuen Avatar.
     */
   def createAvatar = Action(BodyParsers.parse.json) { request =>
-    val parseResult = request.body.validate[CreateAvatarModel]
+    val parseResult = request.body.validate[CreateAvatarDto]
     parseResult.fold(
       errors => {
         BadRequest(Json.obj("status" -> "OK", "message" -> JsError.toJson(errors)))
@@ -61,7 +61,7 @@ class AvatarRestEndpoint extends Controller{
   }
 
   def updateAttribute= Action(BodyParsers.parse.json) {request =>
-    val parseResult = request.body.validate[UpdateAttribute]
+    val parseResult = request.body.validate[UpdateAttributeDto]
     parseResult.fold(
       errors => {
         BadRequest(Json.obj("status" -> "OK", "message" -> JsError.toJson(errors)))
