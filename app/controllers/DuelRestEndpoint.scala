@@ -1,9 +1,12 @@
 package controllers
 
+import javax.inject._
+
+import akka.actor.ActorSystem
 import backend.avatar._
 import backend.persistence.{AvatarId, AvatarRepository, MemoryAvatarRepository}
-import controllers.dto.{CreateAvatarDto, InitiateDuelDto, UpdateAttributeDto}
-import play.api.Play
+import backend.simulation.DuelSimulator
+import controllers.dto.InitiateDuelDto
 import play.api.Play
 import play.api.libs.json._
 import play.api.mvc._
@@ -12,7 +15,8 @@ import play.api.libs.functional.syntax._
 /**
   * Bedient Rest-Aufrufe zu Duellen
   */
-class DuelRestEndpoint  extends Controller {
+@Singleton
+class DuelRestEndpoint @Inject() (actorSystem: ActorSystem) extends Controller {
   val avatarRepository: AvatarRepository = MemoryAvatarRepository
 
   implicit val updateAttributeReads: Reads[InitiateDuelDto] = (
@@ -29,6 +33,8 @@ class DuelRestEndpoint  extends Controller {
         val rightAvatar = avatarRepository.getAvatar(AvatarId(result.leftAvatarId))
         if(leftAvatar.isDefined && rightAvatar.isDefined)
         {
+            val duelName = leftAvatar.get.name + " vs " + rightAvatar.get.name
+            val duelSimulator = actorSystem.actorOf(DuelSimulator.props, duelName)
             //Asynchron duell starten
           Ok(Json.obj("status" -> "OK", "message" -> ("Avatar ") ))
         }
