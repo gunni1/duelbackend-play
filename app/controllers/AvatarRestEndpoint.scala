@@ -1,7 +1,7 @@
 package controllers
 
 import backend.avatar._
-import backend.persistence.{AvatarId, AvatarModel, AvatarRepository, MemoryAvatarRepository}
+import backend.avatar.persistence.{AvatarId, AvatarModel, AvatarRepository, MemoryAvatarRepository}
 import controllers.dto.{CreateAvatarDto, UpdateAttributeDto}
 import play.api.Play
 import play.api.libs.json._

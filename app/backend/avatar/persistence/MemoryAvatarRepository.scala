@@ -1,4 +1,4 @@
-package backend.persistence
+package backend.avatar.persistence
 
 import backend.avatar._
 import play.api.libs.openid.Errors.AUTH_CANCEL

@@ -1,6 +1,6 @@
 package avatar
 
-import backend.persistence.{AvatarId, MemoryAvatarRepository}
+import backend.avatar.persistence.{AvatarId, MemoryAvatarRepository}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**

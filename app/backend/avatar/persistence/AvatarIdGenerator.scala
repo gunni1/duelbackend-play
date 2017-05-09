@@ -1,4 +1,4 @@
-package backend.persistence
+package backend.avatar.persistence
 
 import java.util.concurrent.atomic.AtomicLong
 

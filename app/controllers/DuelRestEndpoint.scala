@@ -4,7 +4,7 @@ import javax.inject._
 
 import akka.actor.ActorSystem
 import backend.avatar._
-import backend.persistence.{AvatarId, AvatarRepository, MemoryAvatarRepository}
+import backend.avatar.persistence.{AvatarId, AvatarRepository, MemoryAvatarRepository}
 import backend.simulation.DuelSimulator
 import controllers.dto.InitiateDuelDto
 import play.api.Play

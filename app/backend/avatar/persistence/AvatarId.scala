@@ -1,4 +1,4 @@
-package backend.persistence
+package backend.avatar.persistence
 
 /**
   * Identifiziert einen Avatar
