@@ -16,8 +16,8 @@ import play.api.libs.functional.syntax._
   * Bedient Rest-Aufrufe zu Duellen
   */
 @Singleton
-class DuelRestEndpoint @Inject() (actorSystem: ActorSystem) extends Controller {
-  val avatarRepository: AvatarRepository = NonePersistentAvatarRepository
+class DuelRestEndpoint @Inject() (actorSystem: ActorSystem, avatarRepository: AvatarRepository) extends Controller {
+  //val avatarRepository: AvatarRepository = NonePersistentAvatarRepository
 
   implicit val updateAttributeReads: Reads[InitiateDuelDto] = (
     (JsPath \ "leftAvatarId").read[String] and (JsPath \ "rightAvatarId").read[String] )(InitiateDuelDto.apply _)

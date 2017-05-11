@@ -1,8 +1,6 @@
 package backend.simulation.persistence
 
 import backend.simulation.DuelProtocol
-import backend.simulation.persistence.NonePersistentDuelRepository.{duels, idGenerator}
-
 /**
   * Created by gunni on 09.05.17.
   */
