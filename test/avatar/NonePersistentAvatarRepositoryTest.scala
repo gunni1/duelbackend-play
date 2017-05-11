@@ -8,7 +8,7 @@ import org.scalatest.{FlatSpec, Matchers}
   */
 class NonePersistentAvatarRepositoryTest extends FlatSpec with Matchers{
   "A AvatarRepository" should "create two avatars with different ids" in {
-    val avatarRepository = new MemoryAvatarRepository()
+    val avatarRepository = NonePersistentAvatarRepository
 
     val idOfHans = avatarRepository.createAvatar("Hans")
     val idOfFrank = avatarRepository.createAvatar("Frank")
@@ -17,7 +17,7 @@ class NonePersistentAvatarRepositoryTest extends FlatSpec with Matchers{
   }
 
   it should "supply a created avatar by given id" in {
-    val avatarRepository = new MemoryAvatarRepository()
+    val avatarRepository = NonePersistentAvatarRepository
     val idOfHans = avatarRepository.createAvatar("Hans")
     val maybeHans = avatarRepository.getAvatar(idOfHans)
 
@@ -26,7 +26,7 @@ class NonePersistentAvatarRepositoryTest extends FlatSpec with Matchers{
   }
 
   it should "supply a empty option when asked for a unset id" in {
-    val maybeAvatar = new MemoryAvatarRepository().getAvatar(AvatarId("1"))
+    val maybeAvatar = NonePersistentAvatarRepository.getAvatar(AvatarId("1"))
     maybeAvatar.isDefined should be (false)
   }
 }
