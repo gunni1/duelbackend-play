@@ -4,7 +4,7 @@ import javax.inject._
 
 import akka.actor.ActorSystem
 import backend.avatar._
-import backend.avatar.persistence.{AvatarId, AvatarRepository, MemoryAvatarRepository}
+import backend.avatar.persistence.{AvatarId, AvatarRepository, NonePersistentAvatarRepository}
 import backend.simulation.DuelSimulator
 import controllers.dto.InitiateDuelDto
 import play.api.Play
@@ -17,7 +17,7 @@ import play.api.libs.functional.syntax._
   */
 @Singleton
 class DuelRestEndpoint @Inject() (actorSystem: ActorSystem) extends Controller {
-  val avatarRepository: AvatarRepository = MemoryAvatarRepository
+  val avatarRepository: AvatarRepository = NonePersistentAvatarRepository
 
   implicit val updateAttributeReads: Reads[InitiateDuelDto] = (
     (JsPath \ "leftAvatarId").read[String] and (JsPath \ "rightAvatarId").read[String] )(InitiateDuelDto.apply _)

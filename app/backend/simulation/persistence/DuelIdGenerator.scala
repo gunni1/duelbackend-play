@@ -5,9 +5,13 @@ import java.util.concurrent.atomic.AtomicLong
 /**
   * Created by gunni on 09.05.17.
   */
-class DuelIdGenerator {
+object DuelIdGenerator {
   private val idCounter = new AtomicLong()
-  def getId: DuelId = {
+
+  /**
+    * Liefert die nächste Duell-ID
+    */
+  def nextId: DuelId = {
     new DuelId(idCounter.incrementAndGet.toString)
   }
 }

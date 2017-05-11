@@ -1,7 +1,7 @@
 package controllers
 
 import backend.avatar._
-import backend.avatar.persistence.{AvatarId, AvatarModel, AvatarRepository, MemoryAvatarRepository}
+import backend.avatar.persistence.{AvatarId, AvatarModel, AvatarRepository, NonePersistentAvatarRepository}
 import controllers.dto.{CreateAvatarDto, UpdateAttributeDto}
 import play.api.Play
 import play.api.libs.json._
@@ -12,7 +12,7 @@ import play.api.libs.functional.syntax._
   * Bedient Rest-Anfragen zu Avataren.
   */
 class AvatarRestEndpoint extends Controller{
-  val avatarRepository: AvatarRepository = MemoryAvatarRepository
+  val avatarRepository: AvatarRepository = NonePersistentAvatarRepository
 
   implicit val createAvatarWrite: Writes[AvatarModel] = (
     (JsPath \ "avatarId").write[String] and (JsPath \ "name").write[String] and

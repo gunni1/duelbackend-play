@@ -1,12 +1,12 @@
 package avatar
 
-import backend.avatar.persistence.{AvatarId, MemoryAvatarRepository}
+import backend.avatar.persistence.{AvatarId, NonePersistentAvatarRepository}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
   * Created by gunni on 21.03.17.
   */
-class MemoryAvatarRepositoryTest extends FlatSpec with Matchers{
+class NonePersistentAvatarRepositoryTest extends FlatSpec with Matchers{
   "A AvatarRepository" should "create two avatars with different ids" in {
     val avatarRepository = new MemoryAvatarRepository()
 
