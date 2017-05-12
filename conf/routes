@@ -13,3 +13,6 @@ GET     /avatars                    controllers.AvatarRestEndpoint.getAvatars
 GET     /avatar/:avatarId           controllers.AvatarRestEndpoint.getAvatar(avatarId: String)
 POST    /avatar/create              controllers.AvatarRestEndpoint.createAvatar
 POST    /avatar/updateAttribute     controllers.AvatarRestEndpoint.updateAttribute
+
+#Duell-Api
+POST    /duel/initiate              controllers.DuelRestEndpoint.initiateDuel

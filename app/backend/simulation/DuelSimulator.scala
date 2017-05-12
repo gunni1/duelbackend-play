@@ -1,8 +1,9 @@
 package backend.simulation
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorSystem, Props}
 import backend.avatar.Avatar
 import backend.simulation.persistence.DuelId
+import com.google.inject.Inject
 
 import scala.util.Random
 
@@ -24,6 +25,7 @@ class DuelSimulator extends Actor {
     case InitiateDuelBetween(leftAvatar: Avatar, rightAvatar: Avatar, duelId: DuelId) => {
 
       val duelProtocol = simulateDuelBetween(leftAvatar, rightAvatar)
+      println(duelProtocol.asString)
     }
   }
 
@@ -34,7 +36,7 @@ class DuelSimulator extends Actor {
 
     val duelControl = new DuelControl(left,right)
 
-     duelControl.doNextActionUntilFinished
+    duelControl.doNextActionUntilFinished
   }
 }
 

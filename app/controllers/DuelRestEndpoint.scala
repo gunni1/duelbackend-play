@@ -3,11 +3,11 @@ package controllers
 import javax.inject._
 
 import akka.actor.ActorSystem
-import backend.avatar._
-import backend.avatar.persistence.{AvatarId, AvatarRepository, NonePersistentAvatarRepository}
+import backend.avatar.persistence.{AvatarId, AvatarRepository}
 import backend.simulation.DuelSimulator
+import backend.simulation.DuelSimulator.InitiateDuelBetween
+import backend.simulation.persistence.DuelRepository
 import controllers.dto.InitiateDuelDto
-import play.api.Play
 import play.api.libs.json._
 import play.api.mvc._
 import play.api.libs.functional.syntax._
@@ -16,10 +16,10 @@ import play.api.libs.functional.syntax._
   * Bedient Rest-Aufrufe zu Duellen
   */
 @Singleton
-class DuelRestEndpoint @Inject() (actorSystem: ActorSystem, avatarRepository: AvatarRepository) extends Controller {
-  //val avatarRepository: AvatarRepository = NonePersistentAvatarRepository
+class DuelRestEndpoint @Inject() (actorSystem: ActorSystem, avatarRepository: AvatarRepository,
+                                  duelRepository: DuelRepository) extends Controller {
 
-  implicit val updateAttributeReads: Reads[InitiateDuelDto] = (
+  implicit val initiateDuelReads: Reads[InitiateDuelDto] = (
     (JsPath \ "leftAvatarId").read[String] and (JsPath \ "rightAvatarId").read[String] )(InitiateDuelDto.apply _)
 
   def initiateDuel = Action(BodyParsers.parse.json) { implicit request =>
@@ -30,13 +30,16 @@ class DuelRestEndpoint @Inject() (actorSystem: ActorSystem, avatarRepository: Av
       },
       result => {
         val leftAvatar = avatarRepository.getAvatar(AvatarId(result.leftAvatarId))
-        val rightAvatar = avatarRepository.getAvatar(AvatarId(result.leftAvatarId))
+        val rightAvatar = avatarRepository.getAvatar(AvatarId(result.rightAvatarId))
         if(leftAvatar.isDefined && rightAvatar.isDefined)
         {
-            val duelName = leftAvatar.get.name + " vs " + rightAvatar.get.name
-            val duelSimulator = actorSystem.actorOf(DuelSimulator.props, duelName)
+            val duelId = duelRepository.nextDuelId
+            val duelSimulator = actorSystem.actorOf(DuelSimulator.props, duelId.asString)
+
+
+            duelSimulator  ! InitiateDuelBetween(leftAvatar.get, rightAvatar.get, duelId)
             //Asynchron duell starten
-          Ok(Json.obj("status" -> "OK", "message" -> ("Avatar ") ))
+          Ok(Json.obj("status" -> "OK", "duelId" -> (duelId.asString) ))
         }
         else
         {
