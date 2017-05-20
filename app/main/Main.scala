@@ -2,6 +2,7 @@ package main
 
 import backend.avatar.Avatar
 import backend.simulation.DuelSimulator
+import backend.simulation.persistence.NonePersistentDuelRepository
 
 /**
   * Created by gunni on 09.03.17.
@@ -19,7 +20,9 @@ object Main {
     right.perception = 600
     right.dexterity = 600
 
-    val duelProtocol = new DuelSimulator().simulateDuelBetween(left,right)
+    val duelRepository = new NonePersistentDuelRepository
+
+    val duelProtocol = new DuelSimulator(duelRepository).simulateDuelBetween(left,right)
     print(duelProtocol.asString)
     println("\nWinner: " + duelProtocol.getWinningAvatar.name)
   }

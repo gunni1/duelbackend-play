@@ -28,5 +28,7 @@ class DuelProtocolBuilder{
 class DuelProtocol(log: ListBuffer[String], winningAvatar: FightingAvatar){
   def asString: String = log.toList.filter{_.nonEmpty}.mkString("\n")
 
+  def duelLog: List[String] = log.toList
+
   def getWinningAvatar = winningAvatar
 }

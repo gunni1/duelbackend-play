@@ -2,7 +2,7 @@ package backend.simulation
 
 import akka.actor.{Actor, ActorSystem, Props}
 import backend.avatar.Avatar
-import backend.simulation.persistence.DuelId
+import backend.simulation.persistence.{DuelId, DuelRepository}
 import com.google.inject.Inject
 
 import scala.util.Random
@@ -18,14 +18,14 @@ object DuelSimulator {
 /**
   * Actor-Implementierung des Duel-Simulators
   */
-class DuelSimulator extends Actor {
+class DuelSimulator @Inject() (duelRepository: DuelRepository) extends Actor {
   import DuelSimulator._
 
   override def receive: Receive = {
     case InitiateDuelBetween(leftAvatar: Avatar, rightAvatar: Avatar, duelId: DuelId) => {
 
       val duelProtocol = simulateDuelBetween(leftAvatar, rightAvatar)
-      println(duelProtocol.asString)
+      duelRepository.saveDuelProtocol(duelId, duelProtocol)
     }
   }
 
