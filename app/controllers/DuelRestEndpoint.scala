@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject._
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
 import backend.avatar.persistence.{AvatarId, AvatarRepository}
 import backend.simulation.DuelSimulator
 import backend.simulation.DuelSimulator.InitiateDuelBetween
@@ -12,12 +12,17 @@ import play.api.libs.json._
 import play.api.mvc._
 import play.api.libs.functional.syntax._
 
+import scala.collection.mutable
+
 /**
   * Bedient Rest-Aufrufe zu Duellen
   */
 @Singleton
 class DuelRestEndpoint @Inject() (actorSystem: ActorSystem, avatarRepository: AvatarRepository,
                                   duelRepository: DuelRepository) extends Controller {
+
+  private val activeDuelSimulations: Map[DuelId, ActorRef] = Map()
+
   implicit val duelProtocolWrites: Writes[DuelProtocolModel] = (
     (JsPath \ "duelId").write[String] and (JsPath \ "duelLog").write[Seq[String]] and
       (JsPath \ "winner").write[String])(unlift(DuelProtocolModel.unapply))
@@ -46,6 +51,7 @@ class DuelRestEndpoint @Inject() (actorSystem: ActorSystem, avatarRepository: Av
             val duelId = duelRepository.nextDuelId
             val duelSimulator = actorSystem.actorOf(DuelSimulator.props, duelId.asString)
 
+            //ActorRef in einer Map zur DuelId speichern um zukünftige Requests zuzuordnen
             duelSimulator  ! InitiateDuelBetween(leftAvatar.get, rightAvatar.get, duelId)
             //Asynchron duell starten
           Ok(Json.obj("status" -> "OK", "duelId" -> (duelId.asString) ))
