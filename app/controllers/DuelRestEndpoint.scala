@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject._
 
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import backend.avatar.persistence.{AvatarId, AvatarRepository}
 import backend.simulation.DuelSimulator
 import backend.simulation.DuelSimulator.InitiateDuelBetween
@@ -44,12 +44,15 @@ class DuelRestEndpoint @Inject() (actorSystem: ActorSystem, avatarRepository: Av
         BadRequest(Json.obj("status" -> "OK", "message" -> JsError.toJson(errors)))
       },
       result => {
+        Thread.sleep(10000)
+
         val leftAvatar = avatarRepository.getAvatar(AvatarId(result.leftAvatarId))
         val rightAvatar = avatarRepository.getAvatar(AvatarId(result.rightAvatarId))
         if(leftAvatar.isDefined && rightAvatar.isDefined)
         {
             val duelId = duelRepository.nextDuelId
-            val duelSimulator = actorSystem.actorOf(DuelSimulator.props, duelId.asString)
+            val duelSimulator = actorSystem.actorOf(
+              Props(new DuelSimulator(duelRepository)), duelId.asString)
 
             //ActorRef in einer Map zur DuelId speichern um zukünftige Requests zuzuordnen
             duelSimulator  ! InitiateDuelBetween(leftAvatar.get, rightAvatar.get, duelId)
