@@ -1,4 +1,4 @@
-package backend.simulation.persistence
+package backend.duel.persistence
 
 /**
   * Repräsentiert ein Duell-Protocol aus sicht eines externen Systems.

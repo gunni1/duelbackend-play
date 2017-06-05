@@ -1,8 +1,8 @@
 package main
 
 import backend.avatar.Avatar
+import backend.duel.persistence.NonePersistentDuelRepository
 import backend.simulation.DuelSimulator
-import backend.simulation.persistence.NonePersistentDuelRepository
 
 /**
   * Created by gunni on 09.03.17.

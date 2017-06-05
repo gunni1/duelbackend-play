@@ -4,9 +4,9 @@ import javax.inject._
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import backend.avatar.persistence.{AvatarId, AvatarRepository}
+import backend.duel.persistence.{DuelId, DuelProtocolModel, DuelRepository}
 import backend.simulation.DuelSimulator
 import backend.simulation.DuelSimulator.InitiateDuelBetween
-import backend.simulation.persistence.{DuelId, DuelProtocolModel, DuelRepository}
 import controllers.dto.InitiateDuelDto
 import play.api.libs.json._
 import play.api.mvc._
@@ -20,8 +20,6 @@ import scala.collection.mutable
 @Singleton
 class DuelRestEndpoint @Inject() (actorSystem: ActorSystem, avatarRepository: AvatarRepository,
                                   duelRepository: DuelRepository) extends Controller {
-
-  private val activeDuelSimulations: Map[DuelId, ActorRef] = Map()
 
   implicit val duelProtocolWrites: Writes[DuelProtocolModel] = (
     (JsPath \ "duelId").write[String] and (JsPath \ "duelLog").write[Seq[String]] and
@@ -44,8 +42,6 @@ class DuelRestEndpoint @Inject() (actorSystem: ActorSystem, avatarRepository: Av
         BadRequest(Json.obj("status" -> "OK", "message" -> JsError.toJson(errors)))
       },
       result => {
-        Thread.sleep(10000)
-
         val leftAvatar = avatarRepository.getAvatar(AvatarId(result.leftAvatarId))
         val rightAvatar = avatarRepository.getAvatar(AvatarId(result.rightAvatarId))
         if(leftAvatar.isDefined && rightAvatar.isDefined)

@@ -1,4 +1,4 @@
-package backend.simulation.persistence
+package backend.duel.persistence
 
 /**
   * Identifiziert über alle Komponenten ein Duell

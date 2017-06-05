@@ -1,6 +1,7 @@
-package backend.simulation.persistence
+package backend.duel.persistence
 
 import backend.simulation.DuelProtocol
+
 import scala.collection.concurrent
 import scala.collection.concurrent.TrieMap
 
