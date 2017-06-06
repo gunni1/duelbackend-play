@@ -25,13 +25,6 @@ case class Avatar(name: String, avatarId: AvatarId, var strength: Int = 1, var a
     * Erhöht die Wahrscheinlichkeit einen gegnerischen Angriff rechtzeitig zu erkennen und
     * zu blocken oder zu kontern.
     */
-
-  def apply(name: String, avatarId: AvatarId, strength: Int, agility: Int, endurance: Int,
-            dexterity: Int, perception: Int): Avatar = new Avatar(name, avatarId,
-    strength, agility, endurance, dexterity,perception)
-
-  def unapply(arg: Avatar): Option[(String, AvatarId, Int, Int, Int, Int, Int )] =
-    Some(name, avatarId, strength, agility, endurance, dexterity, perception)
 }
 
 

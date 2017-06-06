@@ -13,6 +13,7 @@ import play.api.libs.functional.syntax._
   */
 class AvatarRestEndpoint @Inject() (avatarRepository: AvatarRepository) extends Controller{
 
+
   implicit val avatarIdWrites: Writes[AvatarId] = (
     (JsPath \ "id").write[String].contramap{ (avatarId: AvatarId) => avatarId.id}
     )
