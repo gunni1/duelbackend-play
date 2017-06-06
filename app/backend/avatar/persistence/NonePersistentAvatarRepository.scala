@@ -1,5 +1,7 @@
 package backend.avatar.persistence
 
+import java.text.ChoiceFormat
+
 import backend.avatar._
 import play.api.libs.openid.Errors.AUTH_CANCEL
 
@@ -16,15 +18,15 @@ class NonePersistentAvatarRepository extends AvatarRepository{
   /**
     * Liefert eine Liste aller Avatare
     */
-  override def listAvatars: List[AvatarModel] =
-    avatars.map { case (avatarId, avatar) => new AvatarModel(avatarId, avatar)}.toList
+  override def listAvatars: List[Avatar] =
+    avatars.values.toList
 
   /**
     * Erzeugt einen neuen Avatar mit einem bestimmten Namen.
     */
   override def createAvatar(name: String): AvatarId = {
     val nextAvatarId = idGenerator.getId
-    val avatar = new Avatar(name)
+    val avatar = new Avatar(name, nextAvatarId)
     avatars.put(nextAvatarId, avatar)
     nextAvatarId
   }

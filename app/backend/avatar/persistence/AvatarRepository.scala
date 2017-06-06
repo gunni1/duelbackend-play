@@ -9,7 +9,7 @@ trait AvatarRepository  {
   /**
     * Liefert eine Liste aller Avatare
     */
-  def listAvatars: List[AvatarModel]
+  def listAvatars: List[Avatar]
 
   /**
     * Erzeugt einen neuen Avatar mit einem bestimmten Namen.

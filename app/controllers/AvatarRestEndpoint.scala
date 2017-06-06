@@ -1,7 +1,7 @@
 package controllers
 
 import backend.avatar._
-import backend.avatar.persistence.{AvatarId, AvatarModel, AvatarRepository, NonePersistentAvatarRepository}
+import backend.avatar.persistence.{AvatarId, AvatarRepository, NonePersistentAvatarRepository}
 import controllers.dto.{CreateAvatarDto, UpdateAttributeDto}
 import javax.inject._
 import play.api.libs.json._
@@ -12,13 +12,16 @@ import play.api.libs.functional.syntax._
   * Bedient Rest-Anfragen zu Avataren.
   */
 class AvatarRestEndpoint @Inject() (avatarRepository: AvatarRepository) extends Controller{
-  //val avatarRepository: AvatarRepository = NonePersistentAvatarRepository
 
-  implicit val createAvatarWrite: Writes[AvatarModel] = (
-    (JsPath \ "avatarId").write[String] and (JsPath \ "name").write[String] and
+  implicit val avatarIdWrites: Writes[AvatarId] = (
+    (JsPath \ "id").write[String].contramap{ (avatarId: AvatarId) => avatarId.id}
+    )
+
+  implicit val createAvatarWrite: Writes[Avatar] = (
+    (JsPath \ "name").write[String] and (JsPath \ "avatarId").write[AvatarId] and
       (JsPath \ "strength").write[Int] and (JsPath \ "agility").write[Int] and
       (JsPath \ "endurance").write[Int] and (JsPath \ "dexterity").write[Int] and
-      (JsPath \ "perception").write[Int] )(unlift(AvatarModel.unapply))
+      (JsPath \ "perception").write[Int] )(unlift(Avatar.unapply))
 
   implicit val createAvatarReads: Reads[CreateAvatarDto] =
     (JsPath \ "name").read[String].map(CreateAvatarDto(_))
@@ -41,7 +44,7 @@ class AvatarRestEndpoint @Inject() (avatarRepository: AvatarRepository) extends 
   def getAvatar(avatarId: String) = Action { implicit request =>
     val maybeAvatar = avatarRepository.getAvatar(AvatarId(avatarId))
 
-    maybeAvatar.map { avatar => Ok(Json.toJson(new AvatarModel(AvatarId(avatarId), avatar))) }.getOrElse(NotFound)
+    maybeAvatar.map { avatar => Ok(Json.toJson(avatar)) }.getOrElse(NotFound)
   }
 
   /**

@@ -3,7 +3,6 @@ package backend.simulation
 import akka.actor.{Actor, ActorSystem, Props}
 import backend.avatar.Avatar
 import backend.duel.persistence.{DuelId, DuelRepository}
-import backend.simulation.persistence.DuelRepository
 import com.google.inject.Inject
 
 import scala.util.Random

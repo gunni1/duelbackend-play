@@ -2,7 +2,6 @@ package backend
 
 import backend.avatar.persistence.{AvatarRepository, NonePersistentAvatarRepository}
 import backend.duel.persistence.{DuelRepository, NonePersistentDuelRepository}
-import backend.simulation.persistence.NonePersistentDuelRepository
 import com.google.inject.AbstractModule
 
 /**

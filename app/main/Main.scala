@@ -1,6 +1,7 @@
 package main
 
 import backend.avatar.Avatar
+import backend.avatar.persistence.AvatarId
 import backend.duel.persistence.NonePersistentDuelRepository
 import backend.simulation.DuelSimulator
 
@@ -9,12 +10,12 @@ import backend.simulation.DuelSimulator
   */
 object Main {
   def main(args:Array[String]) = {
-    val left = new Avatar("Hans")
+    val left = new Avatar("Hans", AvatarId("1"))
     left.agility = 600
     left.strength = 600
     left.perception = 600
     left.dexterity = 600
-    val right = new Avatar("Peter")
+    val right = new Avatar("Peter", AvatarId("2"))
     right.agility = 500
     right.strength = 600
     right.perception = 600

@@ -18,21 +18,23 @@ import scala.collection.mutable
   * Bedient Rest-Aufrufe zu Duellen
   */
 @Singleton
-class DuelRestEndpoint @Inject() (actorSystem: ActorSystem, avatarRepository: AvatarRepository,
-                                  duelRepository: DuelRepository) extends Controller {
+class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: AvatarRepository,
+                                 duelRepository: DuelRepository) extends Controller {
 
   implicit val duelProtocolWrites: Writes[DuelProtocolModel] = (
     (JsPath \ "duelId").write[String] and (JsPath \ "duelLog").write[Seq[String]] and
-      (JsPath \ "winner").write[String])(unlift(DuelProtocolModel.unapply))
+      (JsPath \ "winner").write[String]) (unlift(DuelProtocolModel.unapply))
 
 
   implicit val initiateDuelReads: Reads[InitiateDuelDto] = (
-    (JsPath \ "leftAvatarId").read[String] and (JsPath \ "rightAvatarId").read[String] )(InitiateDuelDto.apply _)
+    (JsPath \ "leftAvatarId").read[String] and (JsPath \ "rightAvatarId").read[String]) (InitiateDuelDto.apply _)
 
   def getDuelProtocol(duelId: String) = Action { implicit request =>
     val maybeDuelProtocol = duelRepository.getDuelProtocol(DuelId(duelId))
-    maybeDuelProtocol.map { protocol => Ok(Json.toJson(DuelProtocolModel(
-        duelId, protocol.duelLog, protocol.getWinningAvatar.name)))}.getOrElse(NotFound)
+    maybeDuelProtocol.map { protocol =>
+      Ok(Json.toJson(DuelProtocolModel(
+        duelId, protocol.duelLog, protocol.getWinningAvatar.name)))
+    }.getOrElse(NotFound)
   }
 
   def initiateDuel = Action(BodyParsers.parse.json) { implicit request =>
@@ -44,20 +46,18 @@ class DuelRestEndpoint @Inject() (actorSystem: ActorSystem, avatarRepository: Av
       result => {
         val leftAvatar = avatarRepository.getAvatar(AvatarId(result.leftAvatarId))
         val rightAvatar = avatarRepository.getAvatar(AvatarId(result.rightAvatarId))
-        if(leftAvatar.isDefined && rightAvatar.isDefined)
-        {
-            val duelId = duelRepository.nextDuelId
-            val duelSimulator = actorSystem.actorOf(
-              Props(new DuelSimulator(duelRepository)), duelId.asString)
+        if (leftAvatar.isDefined && rightAvatar.isDefined) {
+          val duelId = duelRepository.nextDuelId
+          val duelSimulator = actorSystem.actorOf(
+            Props(new DuelSimulator(duelRepository)), duelId.asString)
 
-            //ActorRef in einer Map zur DuelId speichern um zukünftige Requests zuzuordnen
-            duelSimulator  ! InitiateDuelBetween(leftAvatar.get, rightAvatar.get, duelId)
-            //Asynchron duell starten
-          Ok(Json.obj("status" -> "OK", "duelId" -> (duelId.asString) ))
+          //ActorRef in einer Map zur DuelId speichern um zukünftige Requests zuzuordnen
+          duelSimulator ! InitiateDuelBetween(leftAvatar.get, rightAvatar.get, duelId)
+          //Asynchron duell starten
+          Ok(Json.obj("status" -> "OK", "duelId" -> (duelId.asString)))
         }
-        else
-        {
-          NotFound(Json.obj("status" -> "NotFound", "message" -> "avatar not found" ))
+        else {
+          NotFound(Json.obj("status" -> "NotFound", "message" -> "avatar not found"))
         }
       }
     )
