@@ -4,6 +4,8 @@ import javax.inject._
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import backend.avatar.persistence.{AvatarId, AvatarRepository}
+import backend.duel.DuelReceptionist
+import backend.duel.dto.{DuelRequestTimedOut, DuelStarted}
 import backend.duel.persistence.{DuelId, DuelProtocolModel, DuelRepository}
 import backend.simulation.DuelSimulator
 import backend.simulation.DuelSimulator.InitiateDuelBetween
@@ -21,6 +23,8 @@ import scala.collection.mutable
 class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: AvatarRepository,
                                  duelRepository: DuelRepository) extends Controller {
 
+  val duelReceptionist = new DuelReceptionist(duelRepository, actorSystem)
+
   implicit val duelProtocolWrites: Writes[DuelProtocolModel] = (
     (JsPath \ "duelId").write[String] and (JsPath \ "duelLog").write[Seq[String]] and
       (JsPath \ "winner").write[String]) (unlift(DuelProtocolModel.unapply))
@@ -28,6 +32,10 @@ class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: Ava
 
   implicit val initiateDuelReads: Reads[InitiateDuelDto] = (
     (JsPath \ "leftAvatarId").read[String] and (JsPath \ "rightAvatarId").read[String]) (InitiateDuelDto.apply _)
+
+  implicit val duelIdWrites:Writes[DuelId] = Json.writes[DuelId]
+  implicit val duelStartedWrites:Writes[DuelStarted] = Json.writes[DuelStarted]
+
 
   def getDuelProtocol(duelId: String) = Action { implicit request =>
     val maybeDuelProtocol = duelRepository.getDuelProtocol(DuelId(duelId))
@@ -47,14 +55,14 @@ class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: Ava
         val leftAvatar = avatarRepository.getAvatar(AvatarId(result.leftAvatarId))
         val rightAvatar = avatarRepository.getAvatar(AvatarId(result.rightAvatarId))
         if (leftAvatar.isDefined && rightAvatar.isDefined) {
-          val duelId = duelRepository.nextDuelId
-          val duelSimulator = actorSystem.actorOf(
-            Props(new DuelSimulator(duelRepository)), duelId.asString)
+          duelReceptionist.requestDuel(leftAvatar.get, rightAvatar.get) match {
+            case response:DuelStarted => Ok(Json.toJson(response))
+            //case DuelStarted(duelId, reactionTimeMillis) => Ok(Json.toJson(new DuelStarted(duelId, reactionTimeMillis)))
+            case DuelRequestTimedOut() => Ok(Json.obj("status" -> "OK", "message" -> "duel not accepted"))
+          }
 
-          //ActorRef in einer Map zur DuelId speichern um zukünftige Requests zuzuordnen
-          duelSimulator ! InitiateDuelBetween(leftAvatar.get, rightAvatar.get, duelId)
-          //Asynchron duell starten
-          Ok(Json.obj("status" -> "OK", "duelId" -> (duelId.asString)))
+
+          //Ok(Json.obj("status" -> "OK", "duelId" -> (duelId.asString)))
         }
         else {
           NotFound(Json.obj("status" -> "NotFound", "message" -> "avatar not found"))
