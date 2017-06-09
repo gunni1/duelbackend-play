@@ -11,7 +11,7 @@ import scala.collection.concurrent
 import scala.collection.concurrent.TrieMap
 import scala.concurrent.{Await, Future, Promise}
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 import scala.concurrent.duration._
 import play.api.Logger
 
@@ -50,18 +50,16 @@ class DuelReceptionist(duelRepository: DuelRepository, actorSystem: ActorSystem)
     else {
       //1. Request: Herausfordernder Spieler
       Logger.info("Request: "+ own.name + " -> " + other.name + ". Waiting for another Request to complete")
-      val requestTupel = (own -> other)
-      val p = Promise[RequestDuelResponse]
+      val responsePromise = Promise[RequestDuelResponse]
 
-      openRequests += requestTupel -> p
+      openRequests += (own -> other) -> responsePromise
 
-      val future = p.future
-
-      future.onComplete({
-        case Success(duelStarted) => openRequests.remove((own -> other)); duelStarted
-        case Failure(_) => DuelRequestTimedOut
-      })
-      Await.result(future, 30 seconds) //TODO: TimeoutException verhindern/behandeln
+      val response= Try(Await.result(responsePromise.future, 30 seconds)) match{
+        case Success(duelStarted) => duelStarted
+        case Failure(_) => DuelRequestTimedOut()
+      }
+      openRequests.remove((own -> other));
+      response
     }
   }
 }
