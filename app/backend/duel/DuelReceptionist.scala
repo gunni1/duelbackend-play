@@ -1,17 +1,13 @@
 package backend.duel
 
-import akka.actor.{ActorSystem, Props}
 import backend.avatar.Avatar
 import backend.duel.dto.{DuelRequestTimedOut, DuelStarted, RequestDuelResponse}
-import backend.duel.persistence.{DuelId, DuelRepository}
-import backend.simulation.DuelSimulator
-import backend.simulation.DuelSimulator.InitiateDuelBetween
+import backend.duel.persistence.DuelRepository
+import backend.simulation.FightingAvatar
 
-import scala.collection.concurrent
 import scala.collection.concurrent.TrieMap
-import scala.concurrent.{Await, Future, Promise}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.{Await, Promise}
+import scala.util.{Failure, Random, Success, Try}
 import scala.concurrent.duration._
 import play.api.Logger
 
@@ -22,8 +18,9 @@ import play.api.Logger
   * - Gibt das bestätigte Duell an den DuellManager weiter.
   * - Nur wenn beide Spieler einem Duell zustimmen wird es gestartet.
   */
-class DuelReceptionist(duelRepository: DuelRepository, actorSystem: ActorSystem) {
-  private val openRequests: concurrent.TrieMap[(Avatar, Avatar), Promise[RequestDuelResponse]] =
+class DuelReceptionist(duelRepository: DuelRepository, duelManager: DuelManager) {
+
+  private val openRequests: TrieMap[(Avatar, Avatar), Promise[RequestDuelResponse]] =
     new TrieMap[(Avatar, Avatar), Promise[RequestDuelResponse]]()
 
   /**
@@ -39,13 +36,13 @@ class DuelReceptionist(duelRepository: DuelRepository, actorSystem: ActorSystem)
     if (openRequests contains (other -> own)) {
       //2. Request: Herausgeforderter Spieler
       Logger.info("Request: "+ own.name + " -> " + other.name + ". Open request found. completing promise")
-      val duelId = duelRepository.nextDuelId
-      val duelSimulator = actorSystem.actorOf(Props(new DuelSimulator(duelRepository)), duelId.asString)
+      //TODO: duelReactionTime für erste Aktion berechnen
+      //Berechnung Außerhalb des DuelSimulator ok, da es sich um einen Sonderfall handelt?
 
-      duelSimulator ! InitiateDuelBetween(other, own, duelId)
+      val (duelId, intialReactionTime) = duelManager.initiateDuel(other, own)
 
-      openRequests(other -> own).success(DuelStarted(duelId, 1))
-      DuelStarted(duelId, 1)
+      openRequests(other -> own).success(DuelStarted(duelId, intialReactionTime))
+      DuelStarted(duelId, intialReactionTime)
     }
     else {
       //1. Request: Herausfordernder Spieler
@@ -58,7 +55,7 @@ class DuelReceptionist(duelRepository: DuelRepository, actorSystem: ActorSystem)
         case Success(duelStarted) => duelStarted
         case Failure(_) => DuelRequestTimedOut()
       }
-      openRequests.remove((own -> other));
+      openRequests.remove((own -> other))
       response
     }
   }

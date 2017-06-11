@@ -4,17 +4,13 @@ import javax.inject._
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import backend.avatar.persistence.{AvatarId, AvatarRepository}
-import backend.duel.DuelReceptionist
+import backend.duel.{DuelManager, DuelReceptionist}
 import backend.duel.dto.{DuelRequestTimedOut, DuelStarted}
 import backend.duel.persistence.{DuelId, DuelProtocolModel, DuelRepository}
-import backend.simulation.DuelSimulator
-import backend.simulation.DuelSimulator.InitiateDuelBetween
 import controllers.dto.InitiateDuelDto
 import play.api.libs.json._
 import play.api.mvc._
 import play.api.libs.functional.syntax._
-
-import scala.collection.mutable
 
 /**
   * Bedient Rest-Aufrufe zu Duellen
@@ -23,19 +19,18 @@ import scala.collection.mutable
 class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: AvatarRepository,
                                  duelRepository: DuelRepository) extends Controller {
 
-  val duelReceptionist = new DuelReceptionist(duelRepository, actorSystem)
+  val duelManager = new DuelManager(duelRepository, actorSystem)
+  val duelReceptionist = new DuelReceptionist(duelRepository, duelManager)
 
   implicit val duelProtocolWrites: Writes[DuelProtocolModel] = (
     (JsPath \ "duelId").write[String] and (JsPath \ "duelLog").write[Seq[String]] and
       (JsPath \ "winner").write[String]) (unlift(DuelProtocolModel.unapply))
-
 
   implicit val initiateDuelReads: Reads[InitiateDuelDto] = (
     (JsPath \ "leftAvatarId").read[String] and (JsPath \ "rightAvatarId").read[String]) (InitiateDuelDto.apply _)
 
   implicit val duelIdWrites:Writes[DuelId] = Json.writes[DuelId]
   implicit val duelStartedWrites:Writes[DuelStarted] = Json.writes[DuelStarted]
-
 
   def getDuelProtocol(duelId: String) = Action { implicit request =>
     val maybeDuelProtocol = duelRepository.getDuelProtocol(DuelId(duelId))
@@ -60,8 +55,6 @@ class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: Ava
             //case DuelStarted(duelId, reactionTimeMillis) => Ok(Json.toJson(new DuelStarted(duelId, reactionTimeMillis)))
             case DuelRequestTimedOut() => Ok(Json.obj("status" -> "OK", "message" -> "duel not accepted"))
           }
-
-
           //Ok(Json.obj("status" -> "OK", "duelId" -> (duelId.asString)))
         }
         else {

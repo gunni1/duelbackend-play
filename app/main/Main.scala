@@ -3,7 +3,9 @@ package main
 import backend.avatar.Avatar
 import backend.avatar.persistence.AvatarId
 import backend.duel.persistence.NonePersistentDuelRepository
-import backend.simulation.DuelSimulator
+import backend.simulation.{DuelSimulator, FightingAvatar}
+
+import scala.util.Random
 
 /**
   * Created by gunni on 09.03.17.
@@ -23,7 +25,11 @@ object Main {
 
     val duelRepository = new NonePersistentDuelRepository
 
-    val duelProtocol = new DuelSimulator(duelRepository).simulateDuelBetween(left,right)
+    val fightsRandom = new Random()
+    val fightingLeft = FightingAvatar(left, right,fightsRandom)
+    val fightingRight = FightingAvatar(right, left,fightsRandom)
+
+    val duelProtocol = new DuelSimulator(duelRepository).simulateDuelBetween(fightingLeft,fightingRight)
     print(duelProtocol.asString)
     println("\nWinner: " + duelProtocol.getWinningAvatar.name)
   }

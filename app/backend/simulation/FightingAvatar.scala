@@ -26,9 +26,9 @@ case class FightingAvatar(ownAvatar: Avatar, opponent: Avatar, random: Random){
   /**
     * Die ActionTime ist die Wartezeit bis zur nächsten Aktion in Millisekunden
     * Je mehr agility, desto geringer die Actiontime.
-    * >> Vorerst einfache Formel: 2000-agi
+    * >> Vorerst einfache Formel: 4000-agi
     */
-  def actionTime = 2000 - ownAvatar.agility
+  def actionTime = 4000 - ownAvatar.agility
 
   def receiveDamage(damage: Int) = energy -= damage
 

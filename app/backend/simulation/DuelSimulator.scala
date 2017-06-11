@@ -12,28 +12,26 @@ import scala.util.Random
   */
 object DuelSimulator {
   def props = Props[DuelSimulator]
-  case class InitiateDuelBetween(leftAvatar: Avatar, rightAvatar: Avatar, duelId: DuelId)
+  case class InitiateDuelBetween(left: FightingAvatar, right: FightingAvatar, duelId: DuelId)
 }
 
 /**
-  * Actor-Implementierung des Duel-Simulators
+  * Actor-Implementierung des Duel-Simulators.
+  * Eine Actor-Instanz führt genau ein konkretes Duell aus
   */
 class DuelSimulator @Inject() (duelRepository: DuelRepository) extends Actor {
   import DuelSimulator._
 
-  override def receive: Receive = {
-    case InitiateDuelBetween(leftAvatar: Avatar, rightAvatar: Avatar, duelId: DuelId) => {
 
-      val duelProtocol = simulateDuelBetween(leftAvatar, rightAvatar)
+  override def receive: Receive = {
+    case InitiateDuelBetween(left: FightingAvatar, right: FightingAvatar, duelId: DuelId) => {
+      val duelProtocol = simulateDuelBetween(left, right)
       duelRepository.saveDuelProtocol(duelId, duelProtocol)
     }
   }
 
-  def simulateDuelBetween(leftAvatar: Avatar, rightAvatar: Avatar): DuelProtocol = {
-    val fightsRandom = new Random()
-    val left = FightingAvatar(leftAvatar, rightAvatar,fightsRandom)
-    val right = FightingAvatar(rightAvatar, leftAvatar,fightsRandom)
 
+  def simulateDuelBetween(left: FightingAvatar, right: FightingAvatar): DuelProtocol = {
     val duelControl = new DuelControl(left,right)
 
     duelControl.doNextActionUntilFinished
