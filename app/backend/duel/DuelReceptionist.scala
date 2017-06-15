@@ -1,5 +1,9 @@
 package backend.duel
 
+import java.time.format.DateTimeFormatter
+import java.time.temporal.{ChronoField, ChronoUnit, TemporalUnit}
+import java.time.{ZoneId, ZonedDateTime}
+
 import backend.avatar.Avatar
 import backend.duel.dto.{DuelRequestTimedOut, DuelStarted, RequestDuelResponse}
 import backend.duel.persistence.DuelRepository
@@ -12,7 +16,6 @@ import scala.concurrent.duration._
 import play.api.Logger
 
 
-
 /**
   * - Koordiniert Anfragen zu Duellen.
   * - Gibt das bestätigte Duell an den DuellManager weiter.
@@ -22,6 +25,8 @@ class DuelReceptionist(duelRepository: DuelRepository, duelManager: DuelManager)
 
   private val openRequests: TrieMap[(Avatar, Avatar), Promise[RequestDuelResponse]] =
     new TrieMap[(Avatar, Avatar), Promise[RequestDuelResponse]]()
+
+  def DATE_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
   /**
     * Synchronisiert den Duellstart. Es wird ein wartender Request bestätigt oder auf die Bestätigung
@@ -35,23 +40,25 @@ class DuelReceptionist(duelRepository: DuelRepository, duelManager: DuelManager)
 
     if (openRequests contains (other -> own)) {
       //2. Request: Herausgeforderter Spieler
-      Logger.info("Request: "+ own.name + " -> " + other.name + ". Open request found. completing promise")
-      //TODO: duelReactionTime für erste Aktion berechnen
+      Logger.info("Request: " + own.name + " -> " + other.name + ". Open request found. completing promise")
+
       //Berechnung Außerhalb des DuelSimulator ok, da es sich um einen Sonderfall handelt?
+      val (duelId, initialReactionTimeMillis) = duelManager.initiateDuel(other, own)
 
-      val (duelId, intialReactionTime) = duelManager.initiateDuel(other, own)
+      val firstActionTime = ZonedDateTime.now(ZoneId.systemDefault()).plus(initialReactionTimeMillis, ChronoUnit.MILLIS)
+      val dto = DuelStarted(duelId, firstActionTime.format(DATE_FORMAT))
 
-      openRequests(other -> own).success(DuelStarted(duelId, intialReactionTime))
-      DuelStarted(duelId, intialReactionTime)
+      openRequests(other -> own).success(dto)
+      dto
     }
     else {
       //1. Request: Herausfordernder Spieler
-      Logger.info("Request: "+ own.name + " -> " + other.name + ". Waiting for another Request to complete")
+      Logger.info("Request: " + own.name + " -> " + other.name + ". Waiting for another Request to complete")
       val responsePromise = Promise[RequestDuelResponse]
 
       openRequests += (own -> other) -> responsePromise
 
-      val response= Try(Await.result(responsePromise.future, 30 seconds)) match{
+      val response = Try(Await.result(responsePromise.future, 30 seconds)) match {
         case Success(duelStarted) => duelStarted
         case Failure(_) => DuelRequestTimedOut()
       }

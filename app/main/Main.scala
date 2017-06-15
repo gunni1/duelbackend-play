@@ -3,7 +3,7 @@ package main
 import backend.avatar.Avatar
 import backend.avatar.persistence.AvatarId
 import backend.duel.persistence.NonePersistentDuelRepository
-import backend.simulation.{DuelSimulator, FightingAvatar}
+import backend.simulation.{DuelControl, DuelSimulator, FightingAvatar}
 
 import scala.util.Random
 
@@ -29,7 +29,7 @@ object Main {
     val fightingLeft = FightingAvatar(left, right,fightsRandom)
     val fightingRight = FightingAvatar(right, left,fightsRandom)
 
-    val duelProtocol = new DuelSimulator(duelRepository).simulateDuelBetween(fightingLeft,fightingRight)
+    val duelProtocol = new DuelControl(fightingLeft,fightingRight).doNextActionUntilFinished
     print(duelProtocol.asString)
     println("\nWinner: " + duelProtocol.getWinningAvatar.name)
   }
