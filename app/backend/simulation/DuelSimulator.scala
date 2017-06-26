@@ -1,8 +1,7 @@
 package backend.simulation
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorRef, Props}
 import backend.duel.persistence.{DuelId, DuelRepository}
-import com.google.inject.Inject
 
 /**
   * Companion für Actor. Definiert zu empfangene "Events" als Case Class
@@ -16,7 +15,7 @@ object DuelSimulator {
   * Actor-Implementierung des Duel-Simulators.
   * Eine Actor-Instanz führt genau ein konkretes Duell aus
   */
-class DuelSimulator @Inject() (duelRepository: DuelRepository) extends Actor {
+class DuelSimulator (duelPersister: ActorRef) extends Actor {
   import DuelSimulator._
 
 
@@ -24,7 +23,7 @@ class DuelSimulator @Inject() (duelRepository: DuelRepository) extends Actor {
     case InitiateDuelBetween(left: FightingAvatar, right: FightingAvatar, duelId: DuelId) => {
       val duelProtocol = simulateDuelBetween(left, right)
 
-      duelRepository.saveDuelProtocol(duelId, duelProtocol)
+
     }
   }
 

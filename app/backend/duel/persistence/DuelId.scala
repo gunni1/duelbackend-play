@@ -6,3 +6,8 @@ package backend.duel.persistence
 case class DuelId(id: String) {
   def asString = id.toString
 }
+
+/**
+  * Identifiziert ein DuelEvent. Ein Duell-Event bezieht sich immer auf ein Duel (DuelId).
+  */
+case class DuelEventId(duelId: DuelId, eventId: String)

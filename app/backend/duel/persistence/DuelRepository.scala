@@ -14,7 +14,7 @@ trait DuelRepository {
   /**
     * Speichert ein Ereignis wärend eines Duells.
     */
-  def saveEvent(duelEvent: DuelEvent)
+  def saveEvent(duelEventId: DuelEventId, duelEvent: DuelEvent)
 
 
 

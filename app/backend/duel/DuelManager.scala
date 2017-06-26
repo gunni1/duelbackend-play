@@ -22,6 +22,7 @@ class DuelManager(duelRepository: DuelRepository, actorSystem: ActorSystem) {
     */
   def initiateDuel(left: Avatar, right: Avatar): (DuelId, Int) = {
     val duelId = duelRepository.nextDuelId
+    //Singleton Actor für Duelpersister? Nachteile wenn es mehrere gibt?
     val duelSimulator = actorSystem.actorOf(Props(new DuelSimulator(duelRepository)), duelId.asString)
 
     val fightsRandom = new Random()
