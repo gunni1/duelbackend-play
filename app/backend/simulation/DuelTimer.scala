@@ -16,15 +16,15 @@ class DuelTimer(left: FightingAvatar, right: FightingAvatar) {
       val waited = actualTimeLeft
       actualTimeRight = actualTimeRight - actualTimeLeft
       actualTimeLeft = left.actionTime
-      return TimerResult(waited, left)
+      return TimerResult(waited, left, right)
     }
     else {
       val waited = actualTimeRight
       actualTimeLeft = actualTimeLeft - actualTimeRight
       actualTimeRight = right.actionTime
-      return TimerResult(waited, right)
+      return TimerResult(waited, right, left)
     }
   }
 }
 
-case class TimerResult(waited: Int, next: FightingAvatar)
+case class TimerResult(nextActionIn: Int, executing: FightingAvatar, executedOn: FightingAvatar)
