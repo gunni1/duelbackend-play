@@ -8,7 +8,7 @@ import backend.avatar.persistence.AvatarId
   */
 trait DuelEvent
 case class ActionEvent() extends DuelEvent
-case class DuelFinishedEvent() extends DuelEvent
+trait DuelFinishedEvent extends DuelEvent
 /**
   * Das Duell ist beendet. Ein Avatar hat regulär verloren und wird entfernt.
   */

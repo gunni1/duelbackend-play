@@ -1,7 +1,8 @@
-package backend.simulation
+package backend.duel
 
 import akka.actor.{Actor, ActorRef, Props}
-import backend.duel.persistence.{DuelId, DuelRepository}
+import backend.duel.persistence.DuelId
+import backend.simulation.{DuelControl, DuelProtocol, FightingAvatar}
 
 /**
   * Companion für Actor. Definiert zu empfangene "Events" als Case Class

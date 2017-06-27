@@ -2,9 +2,9 @@ package backend.duel
 
 import akka.actor.{ActorSystem, Props}
 import backend.avatar.Avatar
-import backend.duel.persistence.{DuelId, DuelRepository}
-import backend.simulation.{DuelSimulator, FightingAvatar}
-import backend.simulation.DuelSimulator.InitiateDuelBetween
+import backend.duel.DuelSimulator.InitiateDuelBetween
+import backend.duel.persistence.{DuelEventPersister, DuelId, DuelRepository}
+import backend.simulation.FightingAvatar
 
 import scala.util.Random
 
@@ -22,8 +22,9 @@ class DuelManager(duelRepository: DuelRepository, actorSystem: ActorSystem) {
     */
   def initiateDuel(left: Avatar, right: Avatar): (DuelId, Int) = {
     val duelId = duelRepository.nextDuelId
-    //Singleton Actor für Duelpersister? Nachteile wenn es mehrere gibt?
-    val duelSimulator = actorSystem.actorOf(Props(new DuelSimulator(duelRepository)), duelId.asString)
+
+    val duelPersister = actorSystem.actorOf(Props(new DuelEventPersister(duelRepository)))
+    val duelSimulator = actorSystem.actorOf(Props(new DuelSimulator(duelPersister)), duelId.asString)
 
     val fightsRandom = new Random()
     val fightingLeft = FightingAvatar(left, right, fightsRandom)

@@ -2,6 +2,7 @@ package backend.duel.persistence
 
 import akka.actor.{Actor, Props}
 import backend.duel.DuelEvent
+import backend.duel.persistence.DuelEventPersister.SaveDuelEvent
 import com.google.inject.Inject
 
 object DuelEventPersister {
@@ -12,6 +13,9 @@ object DuelEventPersister {
 /**
   * Actor-Instanz zur asynchronen Persistierung von Duel-Events
   */
-class DuelEventPersister@Inject() (duelRepository: DuelRepository) extends Actor {
-  override def receive: Receive = ???
+class DuelEventPersister @Inject() (duelRepository: DuelRepository) extends Actor {
+  override def receive: Receive = {
+    case SaveDuelEvent(duelEventId, duelEvent) => duelRepository.saveEvent(duelEventId, duelEvent)
+  }
+
 }

@@ -3,7 +3,7 @@ package main
 import backend.avatar.Avatar
 import backend.avatar.persistence.AvatarId
 import backend.duel.persistence.NonePersistentDuelRepository
-import backend.simulation.{DuelControl, DuelSimulator, FightingAvatar}
+import backend.simulation.{DuelControl, FightingAvatar}
 
 import scala.util.Random
 
