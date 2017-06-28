@@ -17,6 +17,8 @@ case class FightingAvatar(ownAvatar: Avatar, opponent: Avatar, random: Random){
   val actionGenerator = ActionGenerator(BlockProbability(ownAvatar, opponent),
     CounterProbability(ownAvatar, opponent))
 
+  def avatarId = ownAvatar.avatarId
+
   def name = ownAvatar.name
 
   def actualEnergy = energy

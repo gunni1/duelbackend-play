@@ -1,26 +1,14 @@
 package backend.simulation
 
+import backend.avatar.persistence.AvatarId
+
 /**
   * Ergebnis einer Aktionsausführung
   */
-trait ExecutionResult{
-  def asString: String
-}
+trait ExecutionResult
 
+case class DamageReceived(damagedAvatar: AvatarId, damage: Int)
 
-case class AttackResult(executor: FightingAvatar, opponent: FightingAvatar, damage: Int) extends ExecutionResult {
-  override def asString: String =
-    executor.name + " executed attack on " + opponent.name + " for " + damage + " damage." +
-      "(" + opponent.actualEnergy + "/100)"
-}
-case class BlockResult(executor: FightingAvatar, opponent: FightingAvatar, damage: Int) extends ExecutionResult {
-  override def asString: String =
-    "Attack from " + executor.name + " on " + opponent.name + " was blocked. " + opponent.name + " received " + damage +
-      " damage." + "(" + opponent.actualEnergy + "/100)"
-}
-case class CounterAttackResult(originalAttacker: FightingAvatar, counterAttacker: FightingAvatar, damage: Int) extends ExecutionResult {
-  override def asString: String =
-    originalAttacker.name + " attacked but " + counterAttacker.name + " parries and counter attack " + originalAttacker.name +
-      " for " + damage + " damage." + "(" + originalAttacker.actualEnergy + "/100)"
-}
-
+case class AttackResult(executor: AvatarId, damageReceived: DamageReceived) extends ExecutionResult
+case class BlockResult(executor: AvatarId, damageReceived: DamageReceived) extends ExecutionResult
+case class CounterAttackResult(executor: AvatarId, damageReceived: DamageReceived) extends ExecutionResult

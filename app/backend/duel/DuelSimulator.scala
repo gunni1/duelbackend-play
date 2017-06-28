@@ -1,9 +1,8 @@
 package backend.duel
 
 import akka.actor.{Actor, ActorRef, Props}
-import backend.duel.persistence.DuelId
+import backend.duel.persistence.{DuelEventId, DuelId}
 import backend.simulation._
-import org.scalatest.fixture
 
 /**
   * Companion für Actor. Definiert zu empfangene "Events" als Case Class
@@ -26,6 +25,10 @@ class DuelSimulator (duelPersister: ActorRef) extends Actor {
 
       //Reaktionszeiten vergleichen, Wartezeit bestimmen, Ausführenden Avatar bestimmen
       val duelTimer = new DuelTimer(left, right)
+
+      //TODO: Bessere Lösung finden!
+      var actionCounter = 0;
+
       while(isNotFinished(left,right))
       {
         val timerResult = duelTimer.next
@@ -37,30 +40,12 @@ class DuelSimulator (duelPersister: ActorRef) extends Actor {
         val executing = timerResult.executing
         val executedOn = timerResult.executedOn
         val actionResult = executing.execute(left.nextAction).on(executedOn)
-        ActionEvent()
+        ActionEvent(DuelEventId(duelId, actionCounter.toString), actionResult)
         //TODO: Was kommt alles in das DuelResult was im Duell-Event gespeichert werden muss?
+
+        actionCounter +=1;
       }
     }
-  }
-
-  def simulateDuelBetween(left: FightingAvatar, right:FightingAvatar) = {
-    val protocol = new DuelProtocolBuilder
-    val duelTimer = new DuelTimer(left, right)
-
-    while(isNotFinished(left, right))
-    {
-      duelTimer.next match {
-        case TimerResult(waited, next) if next.equals(left) => {
-          protocol.logWait(waited)
-          protocol.logAction(left.execute(left.nextAction).on(right))
-        }
-        case TimerResult(waited, next) if next.equals(right) => {
-          protocol.logWait(waited)
-          protocol.logAction(right.execute(right.nextAction).on(left))
-        }
-      }
-    }
-
   }
 
   private def isNotFinished(left: FightingAvatar,right: FightingAvatar): Boolean =

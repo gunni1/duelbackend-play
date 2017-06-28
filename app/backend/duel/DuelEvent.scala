@@ -1,13 +1,13 @@
 package backend.duel
 
 import backend.avatar.persistence.AvatarId
+import backend.duel.persistence.DuelEventId
+import backend.simulation.ExecutionResult
 /**
-  * Repräsentiert ein Ereignis in einem Duell:  Jedes Event besitzt
-  *   - DuelId
-  *   - EventId (fortlaufend wärend des Duells)
+  * Repräsentiert ein Ereignis in einem Duell
   */
 trait DuelEvent
-case class ActionEvent(executor: AvatarId, executedOn: AvatarId) extends DuelEvent
+case class ActionEvent(duelIdEventId: DuelEventId, executionResult: ExecutionResult) extends DuelEvent
 trait DuelFinishedEvent extends DuelEvent
 /**
   * Das Duell ist beendet. Ein Avatar hat regulär verloren und wird entfernt.
