@@ -15,7 +15,7 @@ object DuelEventPersister {
   */
 class DuelEventPersister @Inject() (duelRepository: DuelRepository) extends Actor {
   override def receive: Receive = {
-    case SaveDuelEvent(duelEventId, duelEvent) => duelRepository.saveEvent(duelEventId, duelEvent)
+    case SaveDuelEvent(duelEventId, duelEvent) => duelRepository.saveDuelEvent(duelEventId, duelEvent)
   }
 
 }

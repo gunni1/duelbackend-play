@@ -32,12 +32,8 @@ class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: Ava
   implicit val duelIdWrites:Writes[DuelId] = Json.writes[DuelId]
   implicit val duelStartedWrites:Writes[DuelStarted] = Json.writes[DuelStarted]
 
-  def getDuelProtocol(duelId: String) = Action { implicit request =>
-    val maybeDuelProtocol = duelRepository.getDuelProtocol(DuelId(duelId))
-    maybeDuelProtocol.map { protocol =>
-      Ok(Json.toJson(DuelProtocolModel(
-        duelId, protocol.duelLog, protocol.getWinningAvatar.name)))
-    }.getOrElse(NotFound)
+  def getDuelEvent(encodedDuelEventId: String) = Action { implicit request =>
+    Ok
   }
 
   def initiateDuel = Action(BodyParsers.parse.json) { implicit request =>

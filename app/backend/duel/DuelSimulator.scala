@@ -21,7 +21,6 @@ class DuelSimulator (duelPersister: ActorRef) extends Actor {
 
   override def receive: Receive = {
     case InitiateDuelBetween(left: FightingAvatar, right: FightingAvatar, duelId: DuelId) => {
-      val duelProtocol = simulateDuelBetween(left, right)
 
       //Reaktionszeiten vergleichen, Wartezeit bestimmen, Ausführenden Avatar bestimmen
       val duelTimer = new DuelTimer(left, right)
