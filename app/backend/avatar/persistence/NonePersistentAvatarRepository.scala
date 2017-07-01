@@ -51,9 +51,15 @@ class NonePersistentAvatarRepository extends AvatarRepository{
     }
   }
 
+  //Nur für testdaten
+  private def createAvatar(name: String, str: Int, agi: Int, end: Int, dex: Int, perc: Int): Unit = {
+    val nextAvatarId = idGenerator.getId
+    val avatar = new Avatar(name, nextAvatarId, str, agi, end, dex, perc)
+    avatars.put(nextAvatarId, avatar)
+  }
 
   //Einige Avatare sind bereis vorhanden:
-  createAvatar("Hans")
-  createAvatar("Jochen")
-  createAvatar("Peter")
+  createAvatar("Hans",600, 600, 600, 600, 600)
+  createAvatar("Jochen", 400, 400, 400, 400, 400)
+  createAvatar("Peter",900, 900 ,900, 900, 900)
 }

@@ -12,6 +12,7 @@ class DuelTimer(left: FightingAvatar, right: FightingAvatar) {
     * der als nächstes eine Aktion ausführen darf.
     */
   def next: TimerResult = {
+    //TODO: Random wenn beide Zeiten gleich
     if(actualTimeLeft < actualTimeRight) {
       val waited = actualTimeLeft
       actualTimeRight = actualTimeRight - actualTimeLeft

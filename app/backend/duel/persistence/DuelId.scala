@@ -10,4 +10,7 @@ case class DuelId(id: String) {
 /**
   * Identifiziert ein DuelEvent. Ein Duell-Event bezieht sich immer auf ein Duel (DuelId).
   */
-case class DuelEventId(duelId: DuelId, eventId: String)
+case class DuelEventId(duelId: DuelId, eventId: String) {
+  def asString: String = duelId.asString + "-" + eventId
+
+}

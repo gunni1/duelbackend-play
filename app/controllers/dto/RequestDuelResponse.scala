@@ -1,4 +1,4 @@
-package backend.duel.dto
+package controllers.dto
 
 import backend.duel.persistence.DuelId
 

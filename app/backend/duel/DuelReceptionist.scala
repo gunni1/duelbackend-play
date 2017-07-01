@@ -5,13 +5,13 @@ import java.time.temporal.{ChronoField, ChronoUnit, TemporalUnit}
 import java.time.{ZoneId, ZonedDateTime}
 
 import backend.avatar.Avatar
-import backend.duel.dto.{DuelRequestTimedOut, DuelStarted, RequestDuelResponse}
+import backend.duel.dto.{DuelRequestTimedOut, DuelStarted}
 import backend.duel.persistence.DuelRepository
-import backend.simulation.FightingAvatar
+import controllers.dto.{DuelRequestTimedOut, DuelStarted, RequestDuelResponse}
 
 import scala.collection.concurrent.TrieMap
 import scala.concurrent.{Await, Promise}
-import scala.util.{Failure, Random, Success, Try}
+import scala.util.{Failure, Success, Try}
 import scala.concurrent.duration._
 import play.api.Logger
 

@@ -4,10 +4,11 @@ import akka.actor.{Actor, Props}
 import backend.duel.DuelEvent
 import backend.duel.persistence.DuelEventPersister.SaveDuelEvent
 import com.google.inject.Inject
+import play.api.Logger
 
 object DuelEventPersister {
   def props = Props[DuelEventPersister]
-  case class SaveDuelEvent(duelEventId: DuelEventId, duelEvent: DuelEvent)
+  case class SaveDuelEvent(duelEvent: DuelEvent)
 }
 
 /**
@@ -15,7 +16,9 @@ object DuelEventPersister {
   */
 class DuelEventPersister @Inject() (duelRepository: DuelRepository) extends Actor {
   override def receive: Receive = {
-    case SaveDuelEvent(duelEventId, duelEvent) => duelRepository.saveDuelEvent(duelEventId, duelEvent)
+    case SaveDuelEvent(duelEvent) => {
+      Logger.info("save: " + duelEvent.asString)
+      duelRepository.saveDuelEvent(duelEvent.eventId, duelEvent)
+    }
   }
-
 }

@@ -6,16 +6,34 @@ import backend.simulation.ExecutionResult
 /**
   * Repräsentiert ein Ereignis in einem Duell
   */
-trait DuelEvent
-case class ActionEvent(duelIdEventId: DuelEventId, executionResult: ExecutionResult) extends DuelEvent
+trait DuelEvent {
+  def eventId : DuelEventId
+  def asString : String
+}
+
+
+case class ActionEvent(duelEventId: DuelEventId, executionResult: ExecutionResult) extends DuelEvent {
+  def eventId = duelEventId
+  def asString = "Event: " + duelEventId.asString + " " + executionResult.asString
+}
+
 trait DuelFinishedEvent extends DuelEvent
 /**
-  * Das Duell ist beendet. Ein Avatar hat regulär verloren und wird entfernt.
+  * Das Duell ist beendet.
+  * Ein Avatar hat regulär verloren und kann kein weiteres Duell bestreiten.
   */
-case class AvatarLost(avatarId: AvatarId) extends DuelFinishedEvent
+case class AvatarLost(duelEventId: DuelEventId, executionResult: ExecutionResult) extends DuelFinishedEvent {
+  def eventId = duelEventId
+  def asString = "Duel Finished: " + duelEventId.asString + " " + executionResult.asString +
+    " Avatar Lost."
+}
 
 /**
   * Das Duell ist beendet. Ein Spieler hat aufgegeben und der
   * unterlegene Avatar bleibt existent.
   */
-case class ThrownInTheTowel(avatarId: AvatarId) extends DuelFinishedEvent
+case class ThrownInTheTowel(duelEventId: DuelEventId, avatarId: AvatarId) extends DuelFinishedEvent{
+  def eventId = duelEventId
+  def asString = "Duel Finished: " + duelEventId.asString + " AvatarId: " +
+    avatarId.id + " throw in Towel."
+}
