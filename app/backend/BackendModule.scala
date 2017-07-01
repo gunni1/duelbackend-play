@@ -1,7 +1,7 @@
 package backend
 
 import backend.avatar.persistence.{AvatarRepository, NonePersistentAvatarRepository}
-import backend.duel.persistence.{DuelRepository, NonePersistentDuelRepository}
+import backend.duel.persistence.{DuelEventRepository, NonePersistentDuelEventRepository}
 import com.google.inject.AbstractModule
 
 /**
@@ -11,6 +11,6 @@ class BackendModule extends AbstractModule{
 
   def configure() = {
     bind(classOf[AvatarRepository]).to(classOf[NonePersistentAvatarRepository]).asEagerSingleton
-    bind(classOf[DuelRepository]).to(classOf[NonePersistentDuelRepository]).asEagerSingleton
+    bind(classOf[DuelEventRepository]).to(classOf[NonePersistentDuelEventRepository]).asEagerSingleton
   }
 }

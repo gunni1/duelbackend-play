@@ -2,7 +2,7 @@ package main
 
 import backend.avatar.Avatar
 import backend.avatar.persistence.AvatarId
-import backend.duel.persistence.NonePersistentDuelRepository
+import backend.duel.persistence.NonePersistentDuelEventRepository
 import backend.simulation.FightingAvatar
 
 import scala.util.Random
@@ -23,7 +23,7 @@ object Main {
     right.perception = 600
     right.dexterity = 600
 
-    val duelRepository = new NonePersistentDuelRepository
+    val duelRepository = new NonePersistentDuelEventRepository
 
     val fightsRandom = new Random()
     val fightingLeft = FightingAvatar(left, right,fightsRandom)

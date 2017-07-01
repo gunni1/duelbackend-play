@@ -1,9 +1,7 @@
 package backend.avatar.persistence
 
-import java.text.ChoiceFormat
 
 import backend.avatar._
-import play.api.libs.openid.Errors.AUTH_CANCEL
 
 import scala.collection._
 import scala.collection.concurrent.TrieMap

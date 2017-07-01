@@ -1,6 +1,10 @@
 package backend.duel
 
+import java.time.temporal.ChronoUnit
+import java.time.{ZoneId, ZonedDateTime}
+
 import akka.actor.{Actor, ActorRef, Props}
+import backend.duel.AsyncExecutionTimeSetter.SetNextExecutionTime
 import backend.duel.persistence.DuelEventPersister.SaveDuelEvent
 import backend.duel.persistence.{DuelEventId, DuelId}
 import backend.simulation._
@@ -18,7 +22,7 @@ object DuelSimulator {
   * Actor-Implementierung des Duel-Simulators.
   * Eine Actor-Instanz führt genau ein konkretes Duell aus
   */
-class DuelSimulator (eventPersister: ActorRef) extends Actor {
+class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef) extends Actor {
   import DuelSimulator._
 
   override def receive: Receive = {
@@ -58,8 +62,9 @@ class DuelSimulator (eventPersister: ActorRef) extends Actor {
   private def executeNextAction(duelTimer: DuelTimer, duelId: DuelId, nextActionId: Int): DuelFinishedEvent = {
     val nextAction = duelTimer.next
     //Ausführungszeitpunkt
+    execTimeSetter ! SetNextExecutionTime(duelId, calcNextExecTime(nextAction.nextActionIn))
 
-    //Warten bzw Ausführungszeitpunkt berechnen
+    //Warten
 
     //existiert eine Benutzeraktion?
     //Ja -> ka
@@ -71,17 +76,18 @@ class DuelSimulator (eventPersister: ActorRef) extends Actor {
 
     val executing = nextAction.executing
     val executedOn = nextAction.executedOn
-
-
     val executionResult = executing.execute(executing.nextAction).on(executedOn)
 
 
-    executionResult.
 
 
+    ???
   }
 
-  private def executeNextAction
+  def someoneLose()
+
+  def calcNextExecTime(nextActionIn: Int): ZonedDateTime =
+    ZonedDateTime.now(ZoneId.systemDefault()).plus(nextActionIn, ChronoUnit.MILLIS)
 
   private def isNotFinished(left: FightingAvatar,right: FightingAvatar): Boolean =
     left.actualEnergy > 0 && right.actualEnergy > 0

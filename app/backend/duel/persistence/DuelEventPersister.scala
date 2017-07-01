@@ -14,7 +14,7 @@ object DuelEventPersister {
 /**
   * Actor-Instanz zur asynchronen Persistierung von Duel-Events
   */
-class DuelEventPersister @Inject() (duelRepository: DuelRepository) extends Actor {
+class DuelEventPersister @Inject() (duelRepository: DuelEventRepository) extends Actor {
   override def receive: Receive = {
     case SaveDuelEvent(duelEvent) => {
       Logger.info("save: " + duelEvent.asString)

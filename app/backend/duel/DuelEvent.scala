@@ -22,7 +22,7 @@ trait DuelFinishedEvent extends DuelEvent
   * Das Duell ist beendet.
   * Ein Avatar hat regulär verloren und kann kein weiteres Duell bestreiten.
   */
-case class AvatarLost(duelEventId: DuelEventId, executionResult: ExecutionResult) extends DuelFinishedEvent {
+case class AvatarLose(duelEventId: DuelEventId, executionResult: ExecutionResult) extends DuelFinishedEvent {
   def eventId = duelEventId
   def asString = "Duel Finished: " + duelEventId.asString + " " + executionResult.asString +
     " Avatar Lost."

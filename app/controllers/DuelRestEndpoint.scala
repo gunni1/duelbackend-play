@@ -1,11 +1,12 @@
 package controllers
 
+import java.time.format.DateTimeFormatter
 import javax.inject._
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import backend.avatar.persistence.{AvatarId, AvatarRepository}
 import backend.duel._
-import backend.duel.persistence.{DuelEventId, DuelId, DuelProtocolModel, DuelRepository}
+import backend.duel.persistence.{DuelEventId, DuelEventRepository, DuelId}
 import controllers.dto.{DuelRequestTimedOut, DuelStarted, InitiateDuelDto}
 import play.api.libs.json._
 import play.api.mvc._
@@ -16,14 +17,13 @@ import play.api.libs.functional.syntax._
   */
 @Singleton
 class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: AvatarRepository,
-                                 duelRepository: DuelRepository) extends Controller {
+                                 duelRepository: DuelEventRepository) extends Controller {
 
   val duelManager = new DuelManager(duelRepository, actorSystem)
   val duelReceptionist = new DuelReceptionist(duelRepository, duelManager)
+  val execTimeService = new ActionExecutionTimeService
 
-  implicit val duelProtocolWrites: Writes[DuelProtocolModel] = (
-    (JsPath \ "duelId").write[String] and (JsPath \ "duelLog").write[Seq[String]] and
-      (JsPath \ "winner").write[String]) (unlift(DuelProtocolModel.unapply))
+  val TIME_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
   implicit val initiateDuelReads: Reads[InitiateDuelDto] = (
     (JsPath \ "leftAvatarId").read[String] and (JsPath \ "rightAvatarId").read[String]) (InitiateDuelDto.apply _)
@@ -32,6 +32,11 @@ class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: Ava
   implicit val duelStartedWrites: Writes[DuelStarted] = Json.writes[DuelStarted]
   implicit val duelEventIdWrites: Writes[DuelEventId] = Json.writes[DuelEventId]
 
+  def getNextActionExecution(duelId: String) = Action { implicit request =>
+    execTimeService.getNextExecution(DuelId(duelId)).map {
+      execTime => Ok(Json.obj("status" -> "OK", "nextAction" -> execTime.format(TIME_FORMAT)))
+    }.getOrElse(NotFound)
+  }
 
   def getDuelEvent(duelId: String, eventId: String) = Action { implicit request =>
     duelRepository.loadDuelEvent(DuelEventId(DuelId(duelId), eventId)).map {

@@ -4,7 +4,7 @@ import backend.duel.DuelEvent
 /**
   * Created by gunni on 09.05.17.
   */
-trait DuelRepository {
+trait DuelEventRepository {
   /**
     * Erzeugt die nächste verfügbare Duell-Id unter der ein Duell gespeichert werden kann
     */

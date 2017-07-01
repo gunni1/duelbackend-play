@@ -7,7 +7,7 @@ import scala.collection.concurrent.TrieMap
 /**
   * Speichert Duelle in einer Map identifiziert durch die DuelId
   */
-class NonePersistentDuelRepository extends DuelRepository {
+class NonePersistentDuelEventRepository extends DuelEventRepository {
   private val duelEvents: TrieMap[DuelEventId, DuelEvent] = new TrieMap[DuelEventId, DuelEvent]()
   private val duelIdGenerator = DuelIdGenerator
 

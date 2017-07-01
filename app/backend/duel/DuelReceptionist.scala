@@ -6,7 +6,7 @@ import java.time.{ZoneId, ZonedDateTime}
 
 import backend.avatar.Avatar
 import backend.duel.dto.{DuelRequestTimedOut, DuelStarted}
-import backend.duel.persistence.DuelRepository
+import backend.duel.persistence.DuelEventRepository
 import controllers.dto.{DuelRequestTimedOut, DuelStarted, RequestDuelResponse}
 
 import scala.collection.concurrent.TrieMap
@@ -21,7 +21,7 @@ import play.api.Logger
   * - Gibt das bestätigte Duell an den DuellManager weiter.
   * - Nur wenn beide Spieler einem Duell zustimmen wird es gestartet.
   */
-class DuelReceptionist(duelRepository: DuelRepository, duelManager: DuelManager) {
+class DuelReceptionist(duelRepository: DuelEventRepository, duelManager: DuelManager) {
 
   private val openRequests: TrieMap[(Avatar, Avatar), Promise[RequestDuelResponse]] =
     new TrieMap[(Avatar, Avatar), Promise[RequestDuelResponse]]()
