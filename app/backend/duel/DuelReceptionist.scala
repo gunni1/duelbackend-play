@@ -5,7 +5,6 @@ import java.time.temporal.{ChronoField, ChronoUnit, TemporalUnit}
 import java.time.{ZoneId, ZonedDateTime}
 
 import backend.avatar.Avatar
-import backend.duel.dto.{DuelRequestTimedOut, DuelStarted}
 import backend.duel.persistence.DuelEventRepository
 import controllers.dto.{DuelRequestTimedOut, DuelStarted, RequestDuelResponse}
 

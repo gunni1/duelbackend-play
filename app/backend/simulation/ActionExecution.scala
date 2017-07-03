@@ -20,20 +20,20 @@ class ActionExecution(executor: FightingAvatar, action: Action, random: Random){
   private def performAttackOn(opponent: FightingAvatar) = {
     val damage = gaussianDmg(executor)
     opponent.receiveDamage(damage)
-    AttackResult(executor.avatarId, DamageReceived(opponent.avatarId, damage))
+    AttackResult(executor, DamageReceived(opponent, damage))
   }
 
   private def receiveCounterAttackFrom(opponent: FightingAvatar) = {
     val damage = gaussianDmg(opponent)
     executor.receiveDamage(damage)
-    CounterAttackResult(executor.avatarId, DamageReceived(executor.avatarId, damage))
+    CounterAttackResult(executor, DamageReceived(executor, damage))
   }
 
   private def performAttackButBlockedOn(opponent: FightingAvatar) = {
     val randomDamage = gaussianDmg(executor)
     val damageAfterBlock = (randomDamage * 0.2).toInt
     opponent.receiveDamage(damageAfterBlock)
-    BlockResult(executor.avatarId, DamageReceived(executor.avatarId, damageAfterBlock))
+    BlockResult(executor, DamageReceived(executor, damageAfterBlock))
   }
 
   /**

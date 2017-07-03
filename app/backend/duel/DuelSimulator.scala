@@ -30,29 +30,10 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef) extends
 
       //Reaktionszeiten vergleichen, Wartezeit bestimmen, Ausführenden Avatar bestimmen
       val duelTimer = new DuelTimer(left, right)
+      val duelFinishedEvent = executeNextAction(duelTimer, duelId, 0)
+      eventPersister ! SaveDuelEvent (duelFinishedEvent)
 
-      //TODO: Bessere Lösung finden!
-      var actionCounter = 0
-
-      while(isNotFinished(left,right))
-      {
-        val timerResult = duelTimer.next
-        //Warten (Future)
-
-        //Benutzeraktion?
-
-        //Aktion ausführen
-        val executing = timerResult.executing
-        val executedOn = timerResult.executedOn
-        val actionResult = executing.execute(left.nextAction).on(executedOn)
-
-        //TODO: Bedingte Eventerzeugung: energie < 0 dann AvatarList
-        //TODO: zeitpunkt der nächsten Aktion persistieren
-        eventPersister ! SaveDuelEvent(ActionEvent(DuelEventId(duelId, actionCounter.toString), actionResult))
-
-        actionCounter +=1
-      }
-
+      //ggf Avatar entfernen veranlassen
     }
   }
 
@@ -61,30 +42,33 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef) extends
     */
   private def executeNextAction(duelTimer: DuelTimer, duelId: DuelId, nextActionId: Int): DuelFinishedEvent = {
     val nextAction = duelTimer.next
-    //Ausführungszeitpunkt
     execTimeSetter ! SetNextExecutionTime(duelId, calcNextExecTime(nextAction.nextActionIn))
 
     //Warten
 
     //existiert eine Benutzeraktion?
-    //Ja -> ka
-    //Nein -> Aktion ausführen + Persistieren
-    //Existiert ein gewinner?
-      //ja ->   Finished-Event
-      //nein -> Rekursiv aufrufen
-
 
     val executing = nextAction.executing
     val executedOn = nextAction.executedOn
     val executionResult = executing.execute(executing.nextAction).on(executedOn)
 
+    if (executionResult.damageReceived.damagedAvatar.actualEnergy <= 0){
+      return AvatarLose(DuelEventId(duelId,nextActionId.toString), executionResult)
+    }
+    else {
+      eventPersister ! SaveDuelEvent(ActionEvent(DuelEventId(duelId,nextActionId.toString), executionResult))
 
+      executeNextAction(duelTimer, duelId, nextActionId + 1)
+    }
+  }
 
+  def someoneLose(executionResult: ExecutionResult,
+                  duelEventId: DuelEventId): Option[AvatarLose] = {
+    if (executionResult.damageReceived.damagedAvatar.actualEnergy <= 0)
+      Some(AvatarLose(duelEventId, executionResult))
 
     ???
   }
-
-  def someoneLose()
 
   def calcNextExecTime(nextActionIn: Int): ZonedDateTime =
     ZonedDateTime.now(ZoneId.systemDefault()).plus(nextActionIn, ChronoUnit.MILLIS)

@@ -19,9 +19,10 @@ import play.api.libs.functional.syntax._
 class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: AvatarRepository,
                                  duelRepository: DuelEventRepository) extends Controller {
 
-  val duelManager = new DuelManager(duelRepository, actorSystem)
-  val duelReceptionist = new DuelReceptionist(duelRepository, duelManager)
   val execTimeService = new ActionExecutionTimeService
+  val duelManager = new DuelManager(duelRepository, actorSystem, execTimeService)
+  val duelReceptionist = new DuelReceptionist(duelRepository, duelManager)
+
 
   val TIME_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
