@@ -8,7 +8,6 @@ import backend.duel.AsyncExecutionTimeSetter.SetNextExecutionTime
 import backend.duel.persistence.DuelEventPersister.SaveDuelEvent
 import backend.duel.persistence.{DuelEventId, DuelId}
 import backend.simulation._
-import controllers.dto.ExecutionResultDto
 
 /**
   * Companion für Actor. Definiert zu empfangene "Events" als Case Class

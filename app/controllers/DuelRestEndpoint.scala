@@ -7,7 +7,8 @@ import akka.actor.{ActorRef, ActorSystem, Props}
 import backend.avatar.persistence.{AvatarId, AvatarRepository}
 import backend.duel._
 import backend.duel.persistence.{DuelEventId, DuelEventRepository, DuelId}
-import controllers.dto.{DuelRequestTimedOut, DuelStarted, InitiateDuelDto}
+import controllers.dto.DuelEventDtoFactory.toDto
+import controllers.dto._
 import play.api.libs.json._
 import play.api.mvc._
 import play.api.libs.functional.syntax._
@@ -29,9 +30,13 @@ class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: Ava
   implicit val initiateDuelReads: Reads[InitiateDuelDto] = (
     (JsPath \ "leftAvatarId").read[String] and (JsPath \ "rightAvatarId").read[String]) (InitiateDuelDto.apply _)
 
+  implicit  val avatarIdWrites: Writes[AvatarId] = Json.writes[AvatarId]
   implicit val duelIdWrites: Writes[DuelId] = Json.writes[DuelId]
   implicit val duelStartedWrites: Writes[DuelStarted] = Json.writes[DuelStarted]
   implicit val duelEventIdWrites: Writes[DuelEventId] = Json.writes[DuelEventId]
+  implicit val damageReceivedDtoWrites: Writes[DamageReceivedDto] = Json.writes[DamageReceivedDto]
+  implicit val executionResultDtoWrites: Writes[ExecutionResultDto] = Json.writes[ExecutionResultDto]
+  implicit val duelEventDtoWrites: Writes[DuelEventDto] = Json.writes[DuelEventDto]
 
   def getNextActionExecution(duelId: String) = Action { implicit request =>
     execTimeService.getNextExecution(DuelId(duelId)).map {
@@ -42,7 +47,11 @@ class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: Ava
   def getDuelEvent(duelId: String, eventId: String) = Action { implicit request =>
     duelRepository.loadDuelEvent(DuelEventId(DuelId(duelId), eventId)).map {
       duelEvent => duelEvent match {
-        case ActionEvent(duelEventId, executionResult) => Ok
+        case ActionEvent(duelEventId,executionResult) => Ok(Json.toJson(
+          DuelEventDto(duelEventId, "ActionEvent", DuelEventDtoFactory.toDto(executionResult))))
+        case AvatarLose(duelEventId,executionResult) => Ok(Json.toJson(
+          DuelEventDto(duelEventId, "AvatarLose", DuelEventDtoFactory.toDto(executionResult))))
+        case _ => NotFound(Json.obj("status" -> "500", "message" -> "unknown DuelEvent type"))
       }
     }.getOrElse(NotFound)
   }
