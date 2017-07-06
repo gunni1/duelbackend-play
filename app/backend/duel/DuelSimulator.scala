@@ -61,19 +61,7 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef) extends
     }
   }
 
-  def someoneLose(executionResult: ExecutionResult,
-                  duelEventId: DuelEventId): Option[AvatarLose] = {
-    if (executionResult.damageReceived.damagedAvatar.actualEnergy <= 0)
-      Some(AvatarLose(duelEventId, executionResult))
-
-    ???
-  }
-
   def calcNextExecTime(nextActionIn: Int): ZonedDateTime =
     ZonedDateTime.now(ZoneId.systemDefault()).plus(nextActionIn, ChronoUnit.MILLIS)
-
-  private def isNotFinished(left: FightingAvatar,right: FightingAvatar): Boolean =
-    left.actualEnergy > 0 && right.actualEnergy > 0
-
 }
 
