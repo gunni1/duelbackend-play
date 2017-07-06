@@ -32,8 +32,8 @@ case class AvatarLose(duelEventId: DuelEventId, executionResult: ExecutionResult
   * Das Duell ist beendet. Ein Spieler hat aufgegeben und der
   * unterlegene Avatar bleibt existent.
   */
-case class ThrownInTheTowel(duelEventId: DuelEventId, avatarId: AvatarId) extends DuelFinishedEvent{
+case class Resigned(duelEventId: DuelEventId, avatarId: AvatarId) extends DuelFinishedEvent{
   def eventId = duelEventId
   def asString = "Duel Finished: " + duelEventId.asString + " AvatarId: " +
-    avatarId.id + " throw in Towel."
+    avatarId.id + " resigned."
 }
