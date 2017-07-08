@@ -24,7 +24,6 @@ class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: Ava
   val duelManager = new DuelManager(duelRepository, actorSystem, execTimeService)
   val duelReceptionist = new DuelReceptionist(duelRepository, duelManager)
 
-
   val TIME_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
   implicit val initiateDuelReads: Reads[InitiateDuelDto] = (
@@ -77,6 +76,10 @@ class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: Ava
         }
       }
     )
+  }
+
+  def issueUserCommand = Action(BodyParsers.parse.json) { implicit request =>
+    ???
   }
 
 }
