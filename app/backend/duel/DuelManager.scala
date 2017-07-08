@@ -26,7 +26,8 @@ class DuelManager(duelEventRepository: DuelEventRepository, actorSystem: ActorSy
 
     val duelPersister = actorSystem.actorOf(Props(new DuelEventPersister(duelEventRepository)))
     val execTimeSetter = actorSystem.actorOf(Props(new AsyncExecutionTimeSetter(actionExecutionTimeService)))
-    val duelSimulator = actorSystem.actorOf(Props(new DuelSimulator(duelPersister, execTimeSetter)), duelId.asString)
+    val duelSimulator = actorSystem.actorOf(
+      Props(new DuelSimulator(duelPersister, execTimeSetter, duelId)), duelId.asString)
 
     val fightsRandom = new Random()
     val fightingLeft = FightingAvatar(left, right, fightsRandom)
@@ -34,7 +35,7 @@ class DuelManager(duelEventRepository: DuelEventRepository, actorSystem: ActorSy
 
     val intialReactionTime = fightingLeft.actionTime.min(fightingRight.actionTime)
 
-    duelSimulator ! InitiateDuelBetween(fightingLeft, fightingRight, duelId)
+    duelSimulator ! InitiateDuelBetween(fightingLeft, fightingRight)
 
     (duelId, intialReactionTime)
   }

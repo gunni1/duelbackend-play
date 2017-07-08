@@ -17,20 +17,21 @@ import scala.collection.concurrent._
   */
 object DuelSimulator {
   def props = Props[DuelSimulator]
-  case class InitiateDuelBetween(left: FightingAvatar, right: FightingAvatar, duelId: DuelId)
+  case class InitiateDuelBetween(left: FightingAvatar, right: FightingAvatar)
+  case class IssueUserCommand(userCommand: UserCommand)
 }
 
 /**
   * Actor-Implementierung des Duel-Simulators.
   * Eine Actor-Instanz führt genau ein konkretes Duell aus
   */
-class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef) extends Actor {
+class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId: DuelId) extends Actor {
   import DuelSimulator._
 
   private val userCommands: TrieMap[AvatarId, UserCommand] = new TrieMap[AvatarId, UserCommand]()
 
   override def receive: Receive = {
-    case InitiateDuelBetween(left: FightingAvatar, right: FightingAvatar, duelId: DuelId) => {
+    case InitiateDuelBetween(left: FightingAvatar, right: FightingAvatar) => {
 
       //Reaktionszeiten vergleichen, Wartezeit bestimmen, Ausführenden Avatar bestimmen
       val duelTimer = new DuelTimer(left, right)
@@ -38,6 +39,12 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef) extends
       eventPersister ! SaveDuelEvent (duelFinishedEvent)
 
       //ggf Avatar entfernen veranlassen
+    }
+    case IssueUserCommand(userCommand: UserCommand) => {
+      if(userCommand.duelId.equals(duelId))
+      {
+        userCommands.put(userCommand.avatarId, userCommand)
+      }
     }
   }
 
@@ -51,6 +58,7 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef) extends
     execTimeSetter ! SetNextExecutionTime(duelId, calcNextExecTime(nextAction.nextActionIn))
 
     //Warten
+    Thread.sleep(30000)
 
     //hat ein Spieler aufgegeben?
     resignCommandIssued(executing, executedOn) match {
@@ -76,12 +84,12 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef) extends
     * Wurde von beiden Spielern aufgegeben, wird die zuerst ausgeführte Aufgabe berücksichtigt.
     */
   def resignCommandIssued(executing: FightingAvatar, executedOn: FightingAvatar): Option[Resign] = {
-    userCommands.get(executing.avatarId)
-
-    userCommands.get(executedOn.avatarId)
-
-
-    ???
+    (userCommands.get(executing.avatarId), userCommands.get(executedOn.avatarId)) match {
+      case (Some(x: Resign),Some(y: Resign)) => if (x.issuedAt.isBefore(y.issuedAt)) Some(x) else Some(y)
+      case (Some(x: Resign), None) => Some(x)
+      case (None, Some(y: Resign)) => Some(y)
+      case (_, _) => None
+    }
   }
 
   def calcNextExecTime(nextActionIn: Int): ZonedDateTime =
