@@ -2,11 +2,12 @@ package backend.duel
 
 import akka.actor.{ActorSystem, Props}
 import backend.avatar.Avatar
-import backend.duel.DuelSimulator.InitiateDuelBetween
-import backend.duel.persistence.{DuelEventPersister, DuelId, DuelEventRepository}
+import backend.duel.DuelSimulator.{InitiateDuelBetween, IssueUserCommand}
+import backend.duel.persistence.{DuelEventPersister, DuelEventRepository, DuelId}
 import backend.simulation.FightingAvatar
+import play.api.Logger
 
-import scala.util.Random
+import scala.util.{Failure, Random, Success}
 
 /**
   * - Koordiniert den Verlauf eines Duells
@@ -38,5 +39,15 @@ class DuelManager(duelEventRepository: DuelEventRepository, actorSystem: ActorSy
     duelSimulator ! InitiateDuelBetween(fightingLeft, fightingRight)
 
     (duelId, intialReactionTime)
+  }
+
+  def issueUserCommand(userCommand: UserCommand): Option[String] = {
+    //implicit val timeout = Timeout(FiniteDuration(1, TimeUnit.SECONDS))
+    var errorMessage:Option[String] = None
+    actorSystem.actorSelection(userCommand.duelId.asString).resolveOne().onComplete {
+      case Success(duelSimulator) => duelSimulator ! IssueUserCommand(userCommand)
+      case Failure(_) => errorMessage = Some("No actor found for duelId: "+ userCommand.duelId)
+    }
+    errorMessage
   }
 }
