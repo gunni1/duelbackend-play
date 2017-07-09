@@ -29,13 +29,14 @@ class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: Ava
   implicit val initiateDuelReads: Reads[InitiateDuelDto] = (
     (JsPath \ "leftAvatarId").read[String] and (JsPath \ "rightAvatarId").read[String]) (InitiateDuelDto.apply _)
 
-  implicit  val avatarIdWrites: Writes[AvatarId] = Json.writes[AvatarId]
-  implicit val duelIdWrites: Writes[DuelId] = Json.writes[DuelId]
+  implicit  val avatarIdFormat: Format[AvatarId] = Json.format[AvatarId]
+  implicit val duelIdFormat: Format[DuelId] = Json.format[DuelId]
   implicit val duelStartedWrites: Writes[DuelStarted] = Json.writes[DuelStarted]
   implicit val duelEventIdWrites: Writes[DuelEventId] = Json.writes[DuelEventId]
   implicit val damageReceivedDtoWrites: Writes[DamageReceivedDto] = Json.writes[DamageReceivedDto]
   implicit val executionResultDtoWrites: Writes[ExecutionResultDto] = Json.writes[ExecutionResultDto]
   implicit val duelEventDtoWrites: Writes[DuelEventDto] = Json.writes[DuelEventDto]
+  implicit val userCommandDtoReads: Reads[UserCommandDto] = Json.reads[UserCommandDto]
 
   def getNextActionExecution(duelId: String) = Action { implicit request =>
     execTimeService.getNextExecution(DuelId(duelId)).map {
@@ -79,7 +80,24 @@ class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: Ava
   }
 
   def issueUserCommand = Action(BodyParsers.parse.json) { implicit request =>
-    ???
+    val response = request.body.validate[UserCommandDto].fold(
+      errors => {
+        BadRequest(Json.obj("status" -> "OK", "message" -> JsError.toJson(errors)))
+      },
+      result => {
+        determUserCommand(result).map {
+          userCommand => duelManager.issueUserCommand(userCommand).map {
+            someError => NotFound(Json.obj("status" -> "NotFound", "message" -> someError))
+          }.getOrElse(Ok)
+        }.getOrElse(NotFound(Json.obj("status" -> "NotFound", "message" -> "Unknown command type")))
+      }
+    )
+    response
+  }
+
+  private def determUserCommand(dto: UserCommandDto): Option[UserCommand] = dto.commandType match {
+    case "Resign" => Some(Resign(AvatarId(dto.avatarId), DuelId(dto.duelId), dto.issuedAt))
+    case _ => None
   }
 
 }

@@ -1,12 +1,16 @@
 package backend.duel
 
+import java.util.concurrent.TimeUnit
+
 import akka.actor.{ActorSystem, Props}
+import akka.util.Timeout
 import backend.avatar.Avatar
 import backend.duel.DuelSimulator.{InitiateDuelBetween, IssueUserCommand}
 import backend.duel.persistence.{DuelEventPersister, DuelEventRepository, DuelId}
 import backend.simulation.FightingAvatar
-import play.api.Logger
+import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.duration.FiniteDuration
 import scala.util.{Failure, Random, Success}
 
 /**
@@ -15,6 +19,8 @@ import scala.util.{Failure, Random, Success}
   */
 class DuelManager(duelEventRepository: DuelEventRepository, actorSystem: ActorSystem,
                   actionExecutionTimeService: ActionExecutionTimeService) {
+
+  implicit val userCommandTimeout = Timeout(FiniteDuration(1, TimeUnit.SECONDS))
   /**
     *
     * @param left  Herausfordernder Avatar
@@ -42,7 +48,6 @@ class DuelManager(duelEventRepository: DuelEventRepository, actorSystem: ActorSy
   }
 
   def issueUserCommand(userCommand: UserCommand): Option[String] = {
-    //implicit val timeout = Timeout(FiniteDuration(1, TimeUnit.SECONDS))
     var errorMessage:Option[String] = None
     actorSystem.actorSelection(userCommand.duelId.asString).resolveOne().onComplete {
       case Success(duelSimulator) => duelSimulator ! IssueUserCommand(userCommand)

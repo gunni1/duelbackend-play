@@ -16,5 +16,6 @@ POST    /avatar/updateAttribute     controllers.AvatarRestEndpoint.updateAttribu
 
 #Duell-Api
 POST    /duel/initiate                      controllers.DuelRestEndpoint.initiateDuel
+POST    /duel/issueUserCommand              controllers.DuelRestEndpoint.issueUserCommand
 GET     /duel/event/:duelId/:eventId        controllers.DuelRestEndpoint.getDuelEvent(duelId: String, eventId: String)
 GET     /duel/next/:duelId                  controllers.DuelRestEndpoint.getNextActionExecution(duelId: String)

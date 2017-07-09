@@ -13,5 +13,5 @@ trait UserCommand {
   def duelId: DuelId
 }
 
-case class Resign(avatarId: AvatarId, duelId: DuelId, issuedAt: ZonedDateTime)
+case class Resign(avatarId: AvatarId, duelId: DuelId, issuedAt: ZonedDateTime) extends UserCommand
 
