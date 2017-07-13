@@ -9,8 +9,9 @@ import backend.duel.AsyncExecutionTimeSetter.SetNextExecutionTime
 import backend.duel.persistence.DuelEventPersister.SaveDuelEvent
 import backend.duel.persistence.{DuelEventId, DuelId}
 import backend.simulation._
-
+import scala.concurrent.duration._
 import scala.collection.concurrent._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   * Companion für Actor. Definiert zu empfangene "Events" als Case Class
@@ -19,6 +20,7 @@ object DuelSimulator {
   def props = Props[DuelSimulator]
   case class InitiateDuelBetween(left: FightingAvatar, right: FightingAvatar)
   case class IssueUserCommand(userCommand: UserCommand)
+  case class ExecuteNextAction(duelTimer: DuelTimer, nextAction: TimerResult, duelId: DuelId, nextActionId: Int)
 }
 
 /**
@@ -33,49 +35,46 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
   override def receive: Receive = {
     case InitiateDuelBetween(left: FightingAvatar, right: FightingAvatar) => {
 
-      //Reaktionszeiten vergleichen, Wartezeit bestimmen, Ausführenden Avatar bestimmen
       val duelTimer = new DuelTimer(left, right)
-      val duelFinishedEvent = executeNextAction(duelTimer, duelId, 0)
-      eventPersister ! SaveDuelEvent (duelFinishedEvent)
 
-      //ggf Avatar entfernen veranlassen
+      val nextAction = duelTimer.next
+      execTimeSetter ! SetNextExecutionTime(duelId, calcNextExecTime(nextAction.nextActionIn))
+      context.system.scheduler.scheduleOnce(
+        nextAction.nextActionIn.millis, self, ExecuteNextAction(duelTimer, nextAction, duelId, 0))
     }
     case IssueUserCommand(userCommand: UserCommand) => {
-      if(userCommand.duelId.equals(duelId))
-      {
+      if(userCommand.duelId.equals(duelId)) {
         userCommands.put(userCommand.avatarId, userCommand)
       }
     }
-  }
+    case ExecuteNextAction(duelTimer: DuelTimer, actualAction: TimerResult, duelId: DuelId, actualActionId: Int) => {
+      val executing = actualAction.executing
+      val executedOn = actualAction.executedOn
 
-  /**
-    * Rekursive Funktion die Aktionen ausführt bis das Duell beendet ist.
-    */
-  private def executeNextAction(duelTimer: DuelTimer, duelId: DuelId, nextActionId: Int): DuelFinishedEvent = {
-    val nextAction = duelTimer.next
-    val executing = nextAction.executing
-    val executedOn = nextAction.executedOn
-    execTimeSetter ! SetNextExecutionTime(duelId, calcNextExecTime(nextAction.nextActionIn))
+      val maybeResigned = resignCommandIssued(executing, executedOn)
 
-    //Warten
-    Thread.sleep(30000)
+      if(maybeResigned.isDefined)
+      {
+        eventPersister ! Resigned(DuelEventId(duelId,actualActionId.toString), maybeResigned.get.avatarId)
+      }
+      else
+      {
+        val executionResult = executing.execute(executing.nextAction).on(executedOn)
 
-    //hat ein Spieler aufgegeben?
-    resignCommandIssued(executing, executedOn) match {
-      case Some(Resign(avatarId,_,_)) => return Resigned(DuelEventId(duelId,nextActionId.toString), avatarId)
-    }
+        if (executionResult.damageReceived.damagedAvatar.actualEnergy <= 0)
+        {
+          eventPersister ! AvatarLose(DuelEventId(duelId,actualActionId.toString), executionResult)
+        }
+        else
+        {
+          eventPersister ! SaveDuelEvent(ActionEvent(DuelEventId(duelId,actualActionId.toString), executionResult))
 
-
-    //Aktion Ausführen
-    val executionResult = executing.execute(executing.nextAction).on(executedOn)
-
-    if (executionResult.damageReceived.damagedAvatar.actualEnergy <= 0){
-      return AvatarLose(DuelEventId(duelId,nextActionId.toString), executionResult)
-    }
-    else {
-      eventPersister ! SaveDuelEvent(ActionEvent(DuelEventId(duelId,nextActionId.toString), executionResult))
-
-      executeNextAction(duelTimer, duelId, nextActionId + 1)
+          val nextAction = duelTimer.next
+          execTimeSetter ! SetNextExecutionTime(duelId, calcNextExecTime(nextAction.nextActionIn))
+          context.system.scheduler.scheduleOnce(
+            actualAction.nextActionIn.millis, self, ExecuteNextAction(duelTimer, nextAction, duelId, actualActionId + 1))
+        }
+      }
     }
   }
 
