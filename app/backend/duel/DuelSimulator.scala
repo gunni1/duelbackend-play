@@ -9,6 +9,8 @@ import backend.duel.AsyncExecutionTimeSetter.SetNextExecutionTime
 import backend.duel.persistence.DuelEventPersister.SaveDuelEvent
 import backend.duel.persistence.{DuelEventId, DuelId}
 import backend.simulation._
+import play.api.Logger
+
 import scala.concurrent.duration._
 import scala.collection.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,6 +41,7 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
 
       val nextAction = duelTimer.next
       execTimeSetter ! SetNextExecutionTime(duelId, calcNextExecTime(nextAction.nextActionIn))
+
       context.system.scheduler.scheduleOnce(
         nextAction.nextActionIn.millis, self, ExecuteNextAction(duelTimer, nextAction, duelId, 0))
     }
@@ -63,6 +66,7 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
 
         if (executionResult.damageReceived.damagedAvatar.actualEnergy <= 0)
         {
+          Logger.info("lose")
           eventPersister ! AvatarLose(DuelEventId(duelId,actualActionId.toString), executionResult)
         }
         else
@@ -71,6 +75,7 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
 
           val nextAction = duelTimer.next
           execTimeSetter ! SetNextExecutionTime(duelId, calcNextExecTime(nextAction.nextActionIn))
+          Logger.info("sceduling action in " + actualAction.nextActionIn.millis)
           context.system.scheduler.scheduleOnce(
             actualAction.nextActionIn.millis, self, ExecuteNextAction(duelTimer, nextAction, duelId, actualActionId + 1))
         }

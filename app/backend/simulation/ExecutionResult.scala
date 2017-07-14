@@ -1,7 +1,5 @@
 package backend.simulation
 
-import backend.action.Action
-
 /**
   * Ergebnis einer Aktionsausführung
   */
@@ -23,5 +21,5 @@ case class BlockResult(executor: FightingAvatar, damageReceived: DamageReceived)
   def asString = "Attack from: " + executor.name + " was blocked. " + damageReceived.asString
 }
 case class CounterAttackResult(executor: FightingAvatar, damageReceived: DamageReceived) extends ExecutionResult {
-  def asString = "Attack from: " + executor.name + " was countered." + damageReceived.asString
+  def asString = "Attack from: " + executor.name + " was countered. " + damageReceived.asString
 }
