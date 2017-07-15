@@ -35,6 +35,7 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
   private val userCommands: TrieMap[AvatarId, UserCommand] = new TrieMap[AvatarId, UserCommand]()
 
   override def receive: Receive = {
+    //
     case InitiateDuelBetween(left: FightingAvatar, right: FightingAvatar) =>
     {
       val duelTimer = new DuelTimer(left, right)
@@ -43,12 +44,14 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
       context.system.scheduler.scheduleOnce(
         nextAction.nextActionIn.millis, self, ExecuteNextAction(duelTimer, nextAction, duelId, 0))
     }
+    //Benutzeraktion wird empfangen
     case IssueUserCommand(userCommand: UserCommand) =>
     {
       if(userCommand.duelId.equals(duelId)) {
         userCommands.put(userCommand.avatarId, userCommand)
       }
     }
+    //Nächste Aktionsausführung
     case ExecuteNextAction(duelTimer: DuelTimer, actualAction: TimerResult, duelId: DuelId, actualActionId: Int) =>
     {
       val executing = actualAction.executing
@@ -58,6 +61,7 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
       if(maybeResigned.isDefined)
       {
         eventPersister ! SaveDuelEvent(Resigned(DuelEventId(duelId,actualActionId.toString), maybeResigned.get.avatarId))
+        stopThisActor
       }
       else
       {
@@ -65,6 +69,7 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
         if (executionResult.damageReceived.damagedAvatar.actualEnergy <= 0)
         {
           eventPersister ! SaveDuelEvent(AvatarLose(DuelEventId(duelId,actualActionId.toString), executionResult))
+          stopThisActor
         }
         else
         {
@@ -91,6 +96,8 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
       case (_, _) => None
     }
   }
+
+  def stopThisActor = context.stop(self)
 
   def calcNextExecTime(nextActionIn: Int): ZonedDateTime =
     ZonedDateTime.now(ZoneId.systemDefault()).plus(nextActionIn, ChronoUnit.MILLIS)
