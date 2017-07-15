@@ -67,7 +67,7 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
         if (executionResult.damageReceived.damagedAvatar.actualEnergy <= 0)
         {
           Logger.info("lose")
-          eventPersister ! AvatarLose(DuelEventId(duelId,actualActionId.toString), executionResult)
+          eventPersister ! SaveDuelEvent(AvatarLose(DuelEventId(duelId,actualActionId.toString), executionResult))
         }
         else
         {
