@@ -58,7 +58,7 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
 
       if(maybeResigned.isDefined)
       {
-        eventPersister ! Resigned(DuelEventId(duelId,actualActionId.toString), maybeResigned.get.avatarId)
+        eventPersister ! SaveDuelEvent(Resigned(DuelEventId(duelId,actualActionId.toString), maybeResigned.get.avatarId))
       }
       else
       {
@@ -66,7 +66,6 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
 
         if (executionResult.damageReceived.damagedAvatar.actualEnergy <= 0)
         {
-          Logger.info("lose")
           eventPersister ! SaveDuelEvent(AvatarLose(DuelEventId(duelId,actualActionId.toString), executionResult))
         }
         else

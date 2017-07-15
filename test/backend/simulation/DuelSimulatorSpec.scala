@@ -4,8 +4,8 @@ package backend.simulation
 import akka.testkit.{ ImplicitSender, TestActors, TestKit }
 import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpecLike }
 /**
-  * Created by kubegu on 14.07.2017.
+  * Implementierung erfolgt wenn enscheiden ist wie der DuelSimulator funktioniert.
   */
-class DuelSimulatorTest {
+class DuelSimulatorSpec {
 
 }
