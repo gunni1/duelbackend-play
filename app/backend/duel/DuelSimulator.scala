@@ -35,27 +35,26 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
   private val userCommands: TrieMap[AvatarId, UserCommand] = new TrieMap[AvatarId, UserCommand]()
 
   override def receive: Receive = {
-    case InitiateDuelBetween(left: FightingAvatar, right: FightingAvatar) => {
-
+    case InitiateDuelBetween(left: FightingAvatar, right: FightingAvatar) =>
+    {
       val duelTimer = new DuelTimer(left, right)
-
       val nextAction = duelTimer.next
       execTimeSetter ! SetNextExecutionTime(duelId, calcNextExecTime(nextAction.nextActionIn))
-
       context.system.scheduler.scheduleOnce(
         nextAction.nextActionIn.millis, self, ExecuteNextAction(duelTimer, nextAction, duelId, 0))
     }
-    case IssueUserCommand(userCommand: UserCommand) => {
+    case IssueUserCommand(userCommand: UserCommand) =>
+    {
       if(userCommand.duelId.equals(duelId)) {
         userCommands.put(userCommand.avatarId, userCommand)
       }
     }
-    case ExecuteNextAction(duelTimer: DuelTimer, actualAction: TimerResult, duelId: DuelId, actualActionId: Int) => {
+    case ExecuteNextAction(duelTimer: DuelTimer, actualAction: TimerResult, duelId: DuelId, actualActionId: Int) =>
+    {
       val executing = actualAction.executing
       val executedOn = actualAction.executedOn
 
       val maybeResigned = resignCommandIssued(executing, executedOn)
-
       if(maybeResigned.isDefined)
       {
         eventPersister ! SaveDuelEvent(Resigned(DuelEventId(duelId,actualActionId.toString), maybeResigned.get.avatarId))
@@ -63,7 +62,6 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
       else
       {
         val executionResult = executing.execute(executing.nextAction).on(executedOn)
-
         if (executionResult.damageReceived.damagedAvatar.actualEnergy <= 0)
         {
           eventPersister ! SaveDuelEvent(AvatarLose(DuelEventId(duelId,actualActionId.toString), executionResult))
@@ -71,7 +69,6 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
         else
         {
           eventPersister ! SaveDuelEvent(ActionEvent(DuelEventId(duelId,actualActionId.toString), executionResult))
-
           val nextAction = duelTimer.next
           execTimeSetter ! SetNextExecutionTime(duelId, calcNextExecTime(nextAction.nextActionIn))
           Logger.info("sceduling action in " + actualAction.nextActionIn.millis)
