@@ -11,11 +11,11 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 # Avatar-Api
 GET     /avatars                    controllers.AvatarRestEndpoint.getAvatars
 GET     /avatar/:avatarId           controllers.AvatarRestEndpoint.getAvatar(avatarId: String)
-POST    /avatar/create              controllers.AvatarRestEndpoint.createAvatar
-POST    /avatar/updateAttribute     controllers.AvatarRestEndpoint.updateAttribute
+POST    /avatar                     controllers.AvatarRestEndpoint.createAvatar
+PUT     /avatar/attribute           controllers.AvatarRestEndpoint.updateAttribute
 
 #Duell-Api
-POST    /duel/initiate                      controllers.DuelRestEndpoint.initiateDuel
+POST    /duel                               controllers.DuelRestEndpoint.initiateDuel
 POST    /duel/issueUserCommand              controllers.DuelRestEndpoint.issueUserCommand
 GET     /duel/event/:duelId/:eventId        controllers.DuelRestEndpoint.getDuelEvent(duelId: String, eventId: String)
-GET     /duel/next/:duelId                  controllers.DuelRestEndpoint.getNextActionExecution(duelId: String)
+GET     /duel/:duelId/next                  controllers.DuelRestEndpoint.getNextActionExecution(duelId: String)
