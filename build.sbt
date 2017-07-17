@@ -19,4 +19,4 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 
 libraryDependencies += "org.mockito" % "mockito-all" % "1.8.4" % "test"
 
-libraryDependencies += "com.typesafe.akka" % "akka-testkit_2.11" % "2.3.11" % "test"
+libraryDependencies += "com.typesafe.akka" % "akka-testkit_2.11" % "2.5.3" % "test"
