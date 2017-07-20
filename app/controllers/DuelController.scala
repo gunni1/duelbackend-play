@@ -17,8 +17,8 @@ import play.api.libs.functional.syntax._
   * Bedient Rest-Aufrufe zu Duellen
   */
 @Singleton
-class DuelRestEndpoint @Inject()(actorSystem: ActorSystem, avatarRepository: AvatarRepository,
-                                 duelRepository: DuelEventRepository) extends Controller {
+class DuelController @Inject()(actorSystem: ActorSystem, avatarRepository: AvatarRepository,
+                               duelRepository: DuelEventRepository) extends Controller {
 
   val execTimeService = new ActionExecutionTimeService
   val duelManager = new DuelManager(duelRepository, actorSystem, execTimeService)

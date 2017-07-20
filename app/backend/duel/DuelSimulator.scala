@@ -41,7 +41,7 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
       val duelTimer = new DuelTimer(left, right)
       val nextAction = duelTimer.next
       execTimeSetter ! SetNextExecutionTime(duelId, calcNextExecTime(nextAction.nextActionIn))
-      context.system.scheduler.scheduleOnce(
+      scheduler.scheduleOnce(
         nextAction.nextActionIn.millis, self, ExecuteNextAction(duelTimer, nextAction, duelId, 0))
     }
     //Benutzeraktion wird empfangen
@@ -77,7 +77,7 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
           val nextAction = duelTimer.next
           execTimeSetter ! SetNextExecutionTime(duelId, calcNextExecTime(nextAction.nextActionIn))
           Logger.info("sceduling action in " + actualAction.nextActionIn.millis)
-          context.system.scheduler.scheduleOnce(
+          scheduler.scheduleOnce(
             actualAction.nextActionIn.millis, self, ExecuteNextAction(duelTimer, nextAction, duelId, actualActionId + 1))
         }
       }
@@ -98,6 +98,8 @@ class DuelSimulator (eventPersister: ActorRef, execTimeSetter: ActorRef, duelId:
   }
 
   def stopThisActor = context.stop(self)
+
+  def scheduler = context.system.scheduler
 
   def calcNextExecTime(nextActionIn: Int): ZonedDateTime =
     ZonedDateTime.now(ZoneId.systemDefault()).plus(nextActionIn, ChronoUnit.MILLIS)

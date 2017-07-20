@@ -11,7 +11,7 @@ import play.api.libs.functional.syntax._
 /**
   * Bedient Rest-Anfragen zu Avataren.
   */
-class AvatarRestEndpoint @Inject() (avatarRepository: AvatarRepository) extends Controller{
+class AvatarController @Inject()(avatarRepository: AvatarRepository) extends Controller{
 
 
   implicit val avatarIdWrites: Writes[AvatarId] =

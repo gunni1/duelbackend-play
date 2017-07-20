@@ -11,9 +11,6 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import org.scalatest.mockito.MockitoSugar
 import org.mockito.Mockito._
 import scala.concurrent.duration._
-import org.scalatest.mockito._
-import org.scalatest.FunSuite
-import org.scalatest.BeforeAndAfter
 
 import scala.util.Random
 

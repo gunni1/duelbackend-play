@@ -9,13 +9,13 @@ GET     /                           controllers.Application.index
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 # Avatar-Api
-GET     /avatars                    controllers.AvatarRestEndpoint.getAvatars
-GET     /avatar/:avatarId           controllers.AvatarRestEndpoint.getAvatar(avatarId: String)
-POST    /avatar                     controllers.AvatarRestEndpoint.createAvatar
-PUT     /avatar/attribute           controllers.AvatarRestEndpoint.updateAttribute
+GET     /avatars                    controllers.AvatarController.getAvatars
+GET     /avatar/:avatarId           controllers.AvatarController.getAvatar(avatarId: String)
+POST    /avatar                     controllers.AvatarController.createAvatar
+PUT     /avatar/attribute           controllers.AvatarController.updateAttribute
 
 #Duell-Api
-POST    /duel                               controllers.DuelRestEndpoint.initiateDuel
-POST    /duel/issueUserCommand              controllers.DuelRestEndpoint.issueUserCommand
-GET     /duel/event/:duelId/:eventId        controllers.DuelRestEndpoint.getDuelEvent(duelId: String, eventId: String)
-GET     /duel/:duelId/next                  controllers.DuelRestEndpoint.getNextActionExecution(duelId: String)
+POST    /duel                               controllers.DuelController.initiateDuel
+POST    /duel/issueUserCommand              controllers.DuelController.issueUserCommand
+GET     /duel/event/:duelId/:eventId        controllers.DuelController.getDuelEvent(duelId: String, eventId: String)
+GET     /duel/:duelId/next                  controllers.DuelController.getNextActionExecution(duelId: String)
