@@ -2,8 +2,9 @@ package controllers
 
 import backend.avatar._
 import backend.avatar.persistence.{AvatarId, AvatarRepository, NonePersistentAvatarRepository}
-import controllers.dto.{CreateAvatarDto, UpdateAttributeDto}
+import controllers.dto.{AvatarDto, CreateAvatarDto, UpdateAttributeDto}
 import javax.inject._
+
 import play.api.libs.json._
 import play.api.mvc._
 import play.api.libs.functional.syntax._
@@ -17,11 +18,11 @@ class AvatarController @Inject()(avatarRepository: AvatarRepository) extends Con
   implicit val avatarIdWrites: Writes[AvatarId] =
     (JsPath \ "id").write[String].contramap { (avatarId: AvatarId) => avatarId.id }
 
-  implicit val createAvatarWrite: Writes[Avatar] = (
-    (JsPath \ "name").write[String] and (JsPath \ "avatarId").write[AvatarId] and
+  implicit val avatarDtoWrites: Writes[AvatarDto] = (
+    (JsPath \ "name").write[String] and (JsPath \ "avatarId").write[String] and
       (JsPath \ "strength").write[Int] and (JsPath \ "agility").write[Int] and
       (JsPath \ "endurance").write[Int] and (JsPath \ "dexterity").write[Int] and
-      (JsPath \ "perception").write[Int] )(unlift(Avatar.unapply))
+      (JsPath \ "perception").write[Int] )(unlift(AvatarDto.unapply))
 
   implicit val createAvatarReads: Reads[CreateAvatarDto] =
     (JsPath \ "name").read[String].map(CreateAvatarDto(_))
@@ -34,8 +35,8 @@ class AvatarController @Inject()(avatarRepository: AvatarRepository) extends Con
     * Liefert eine Liste mit allen Avataren und ihren Attributwerten (Testzwecke)
     */
   def getAvatars = Action { implicit request =>
-    val avatarsJson = Json.toJson(avatarRepository.listAvatars)
-    Ok(avatarsJson)
+    var avatarDtos = avatarRepository.listAvatars.map(avatar => AvatarDto(avatar))
+    Ok(Json.toJson(avatarDtos))
   }
 
   /**
@@ -44,7 +45,7 @@ class AvatarController @Inject()(avatarRepository: AvatarRepository) extends Con
   def getAvatar(avatarId: String) = Action { implicit request =>
     val maybeAvatar = avatarRepository.getAvatar(AvatarId(avatarId))
 
-    maybeAvatar.map { avatar => Ok(Json.toJson(avatar)) }.getOrElse(NotFound)
+    maybeAvatar.map { avatar => Ok(Json.toJson(AvatarDto(avatar))) }.getOrElse(NotFound)
   }
 
   /**
