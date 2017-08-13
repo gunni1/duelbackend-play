@@ -24,18 +24,17 @@ class AvatarController @Inject()(avatarRepository: AvatarRepository) extends Con
       (JsPath \ "endurance").write[Int] and (JsPath \ "dexterity").write[Int] and
       (JsPath \ "perception").write[Int] )(unlift(AvatarDto.unapply))
 
-  implicit val createAvatarReads: Reads[CreateAvatarDto] =
-    (JsPath \ "name").read[String].map(CreateAvatarDto(_))
+  implicit val createAvatarReads: Reads[CreateAvatarDto] = Json.reads[CreateAvatarDto]
 
   implicit val updateAttributeReads: Reads[UpdateAttributeDto] = (
     (JsPath \ "avatarId").read[String] and (JsPath \ "attributeName").read[String] and
       (JsPath \ "newValue").read[Int])(UpdateAttributeDto.apply _)
 
   /**
-    * Liefert eine Liste mit allen Avataren und ihren Attributwerten (Testzwecke)
+    * Liefert eine Liste mit allen Avataren eines Users
     */
-  def getAvatars = Action { implicit request =>
-    var avatarDtos = avatarRepository.listAvatars.map(avatar => AvatarDto(avatar))
+  def getAvatars(userId: String) = Action { implicit request =>
+    var avatarDtos = avatarRepository.listAvatars(userId).map(avatar => AvatarDto(avatar))
     Ok(Json.toJson(avatarDtos))
   }
 
@@ -58,7 +57,7 @@ class AvatarController @Inject()(avatarRepository: AvatarRepository) extends Con
         BadRequest(Json.obj("status" -> "OK", "message" -> JsError.toJson(errors)))
       },
       avatar => {
-        val avatarId = avatarRepository.createAvatar(avatar.name)
+        val avatarId = avatarRepository.createAvatar(avatar.name, avatar.userId)
         Ok(Json.obj("status" -> "OK", "message" -> ("Avatar '"+avatar.name + "' saved with id: " + avatarId) ))
       }
     )

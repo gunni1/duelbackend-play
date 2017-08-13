@@ -9,10 +9,10 @@ GET     /                           controllers.Application.index
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 # Avatar-Api
-GET     /avatars                    controllers.AvatarController.getAvatars
-GET     /avatar/:avatarId           controllers.AvatarController.getAvatar(avatarId: String)
-POST    /avatar                     controllers.AvatarController.createAvatar
-PUT     /avatar/attribute           controllers.AvatarController.updateAttribute
+GET     /avatars/:userId                    controllers.AvatarController.getAvatars(userId: String)
+GET     /avatar/:avatarId                   controllers.AvatarController.getAvatar(avatarId: String)
+POST    /avatar                             controllers.AvatarController.createAvatar
+PUT     /avatar/attribute                   controllers.AvatarController.updateAttribute
 
 #Duell-Api
 POST    /duel                               controllers.DuelController.initiateDuel

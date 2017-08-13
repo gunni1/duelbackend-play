@@ -29,7 +29,7 @@ class DuelController @Inject()(actorSystem: ActorSystem, avatarRepository: Avata
   implicit val initiateDuelReads: Reads[InitiateDuelDto] = (
     (JsPath \ "leftAvatarId").read[String] and (JsPath \ "rightAvatarId").read[String]) (InitiateDuelDto.apply _)
 
-  implicit  val avatarIdFormat: Format[AvatarId] = Json.format[AvatarId]
+  implicit val avatarIdFormat: Format[AvatarId] = Json.format[AvatarId]
   implicit val duelIdFormat: Format[DuelId] = Json.format[DuelId]
   implicit val duelStartedWrites: Writes[DuelStarted] = Json.writes[DuelStarted]
   implicit val duelEventIdWrites: Writes[DuelEventId] = Json.writes[DuelEventId]

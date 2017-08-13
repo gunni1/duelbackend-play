@@ -9,12 +9,12 @@ trait AvatarRepository  {
   /**
     * Liefert eine Liste aller Avatare
     */
-  def listAvatars: List[Avatar]
+  def listAvatars(userId: String): List[Avatar]
 
   /**
     * Erzeugt einen neuen Avatar mit einem bestimmten Namen.
     */
-  def createAvatar(name: String): AvatarId
+  def createAvatar(name: String, userId: String): AvatarId
 
   /**
     * Liefert einen Avatar anhand seiner AvatarId.

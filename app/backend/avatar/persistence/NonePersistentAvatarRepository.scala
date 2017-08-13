@@ -16,13 +16,13 @@ class NonePersistentAvatarRepository extends AvatarRepository{
   /**
     * Liefert eine Liste aller Avatare
     */
-  override def listAvatars: List[Avatar] =
+  override def listAvatars(userId: String): List[Avatar] =
     avatars.values.toList
 
   /**
     * Erzeugt einen neuen Avatar mit einem bestimmten Namen.
     */
-  override def createAvatar(name: String): AvatarId = {
+  override def createAvatar(name: String, userId: String): AvatarId = {
     val nextAvatarId = idGenerator.getId
     val avatar = new Avatar(name, nextAvatarId)
     avatars.put(nextAvatarId, avatar)
