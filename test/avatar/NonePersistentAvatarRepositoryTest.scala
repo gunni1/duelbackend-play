@@ -7,18 +7,20 @@ import org.scalatest.{FlatSpec, Matchers}
   * Created by gunni on 21.03.17.
   */
 class NonePersistentAvatarRepositoryTest extends FlatSpec with Matchers{
+  val userId = "user1"
+
   "A AvatarRepository" should "create two avatars with different ids" in {
     val avatarRepository = new NonePersistentAvatarRepository
 
-    val idOfHans = avatarRepository.createAvatar("Hans")
-    val idOfFrank = avatarRepository.createAvatar("Frank")
+    val idOfHans = avatarRepository.createAvatar("Hans",userId)
+    val idOfFrank = avatarRepository.createAvatar("Frank",userId)
     idOfHans should equal (AvatarId("1"))
     idOfFrank should equal (AvatarId("2"))
   }
 
   it should "supply a created avatar by given id" in {
     val avatarRepository = new NonePersistentAvatarRepository
-    val idOfHans = avatarRepository.createAvatar("Hans")
+    val idOfHans = avatarRepository.createAvatar("Hans",userId)
     val maybeHans = avatarRepository.getAvatar(idOfHans)
 
     maybeHans.isDefined should be (true)

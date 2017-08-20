@@ -21,4 +21,4 @@ libraryDependencies += "org.mockito" % "mockito-all" % "1.8.4" % "test"
 
 libraryDependencies += "com.typesafe.akka" % "akka-testkit_2.11" % "2.5.3" % "test"
 
-libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % "1.0.1"
+libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % "2.1.0"
