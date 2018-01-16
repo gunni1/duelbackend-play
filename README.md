@@ -20,6 +20,6 @@ Darüber hinaus werden über den DuelManager Benutzeraktionen an den DuelSimulat
 ## DuelSimulator
 
 Der DuelSimulator führt Aktionen in der Aktionskette aus. Er reagiert auf folgende Aktor-Nachrichten:
-- InitiateDuelBetween: Beginnt Kette. Bestimmt welcher Avatar die erste Aktion ausführt und reiht das entsprechende Event ein.
-- IssueUserCommand: Setzt für einen Avatar eine durch den Spieler getriggerte Benutzerinteraktion für die nächste Aktion. Es kann je Aktion immer nur eine Benutzeraktion geben.
-- ExecuteNextAction: Würfelt die nächste Aktion und führt sie auf die Avatare der Spieler aus. Bestimmt die Zeit bis zur nächsten Aktion und wer der ausführende Avatar ist.
+- **InitiateDuelBetween**: Beginnt Kette. Bestimmt welcher Avatar die erste Aktion ausführt und reiht das entsprechende Event ein.
+- **IssueUserCommand**: Setzt für einen Avatar eine durch den Spieler getriggerte Benutzerinteraktion für die nächste Aktion. Es kann je Aktion immer nur eine Benutzeraktion geben.
+- **ExecuteNextAction**: Würfelt die nächste Aktion und führt sie auf die Avatare der Spieler aus. Bestimmt die Zeit bis zur nächsten Aktion und wer der ausführende Avatar ist.
