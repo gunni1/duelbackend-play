@@ -10,7 +10,8 @@ import com.google.inject.AbstractModule
 class BackendModule extends AbstractModule{
 
   def configure() = {
-    bind(classOf[AvatarRepository]).to(classOf[MongoDBAvatarRepository]).asEagerSingleton
+    bind(classOf[AvatarRepository]).to(classOf[NonePersistentAvatarRepository]).asEagerSingleton
+    //bind(classOf[AvatarRepository]).to(classOf[MongoDBAvatarRepository]).asEagerSingleton
     bind(classOf[DuelEventRepository]).to(classOf[NonePersistentDuelEventRepository]).asEagerSingleton
   }
 }
