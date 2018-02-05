@@ -20,9 +20,9 @@ class AvatarController @Inject()(avatarRepository: AvatarRepository) extends Con
 
   implicit val avatarDtoWrites: Writes[AvatarDto] = (
     (JsPath \ "name").write[String] and (JsPath \ "avatarId").write[String] and
-      (JsPath \ "strength").write[Int] and (JsPath \ "agility").write[Int] and
-      (JsPath \ "endurance").write[Int] and (JsPath \ "dexterity").write[Int] and
-      (JsPath \ "perception").write[Int] )(unlift(AvatarDto.unapply))
+      (JsPath \ "str").write[Int] and (JsPath \ "agi").write[Int] and
+      (JsPath \ "end").write[Int] and (JsPath \ "dex").write[Int] and
+      (JsPath \ "perc").write[Int] )(unlift(AvatarDto.unapply))
 
   implicit val createAvatarReads: Reads[CreateAvatarDto] = Json.reads[CreateAvatarDto]
 
